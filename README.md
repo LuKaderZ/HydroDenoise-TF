@@ -99,3 +99,11 @@ Conv‑TasNet
 直接运行train.py文件
 
 DPRNN操作类似上面
+
+## 步骤8：消融实验
+依次执行：
+    python train_ablation.py --model model_ablation1 --train_dir ../data/ShipsEar/train --save_dir ../experiments/ablation/ablation1/checkpoints
+    python train_ablation.py --model model_ablation2 --train_dir ../data/ShipsEar/train --save_dir ../experiments/ablation/ablation2/checkpoints
+    python train_ablation.py --model model_ablation3 --train_dir ../data/ShipsEar/train --save_dir ../experiments/ablation/ablation3/checkpoints
+
+    python test_ablation_batch.py
