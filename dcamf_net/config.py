@@ -80,7 +80,7 @@ def _load_audio(filepath, sample_rate):
 
 
 @torch.no_grad()
-def run_evaluation(model, test_dir, sample_rate, device):
+def run_evaluation(model, test_dir, sample_rate, device, output_dir=None):
     """
     核心评估函数：处理所有计算，返回指标字典
     """
@@ -97,6 +97,10 @@ def run_evaluation(model, test_dir, sample_rate, device):
 
     model.eval()
     results = {"sisnr_b": [], "sisnr_a": [], "sdr_b": [], "sdr_a": []}
+
+    # 确定降噪音频保存路径
+    denoised_root = output_dir if output_dir else os.path.join(test_dir, 'denoised')
+    os.makedirs(denoised_root, exist_ok=True)
 
     for fname in tqdm(
         fnames, desc=f"Testing {os.path.basename(test_dir)}", unit="file"
@@ -117,9 +121,8 @@ def run_evaluation(model, test_dir, sample_rate, device):
         e_np = est.squeeze(0)
 
         # 保存降噪
-        denoised_path = os.path.join(test_dir, "denoised")
         torchaudio.save(
-            os.path.join(denoised_path, fname), torch.from_numpy(e_np), sample_rate
+            os.path.join(denoised_root, fname), torch.from_numpy(e_np), sample_rate
         )
 
         # 指标存入列表

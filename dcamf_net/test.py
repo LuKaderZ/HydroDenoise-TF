@@ -20,6 +20,7 @@ def parse_args():
     parser.add_argument("--ffn_hidden", type=int, default=512)
     parser.add_argument("--dw_kernel_size", type=int, default=31)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument('--output_dir', type=str, default=None, help='降噪音频保存目录')
     return parser.parse_args()
 
 
@@ -32,7 +33,7 @@ def main():
     print_complexity(model, args.sample_rate, device)
 
     for t_dir in args.test_dir:
-        metrics = run_evaluation(model, t_dir, args.sample_rate, device)
+        metrics = run_evaluation(model, t_dir, args.sample_rate, device, output_dir=args.output_dir)
         if metrics:
             print(f"\n>> 数据集: {t_dir}")
             print(f"   样本数: {metrics['count']}")
@@ -47,30 +48,15 @@ def main():
 if __name__ == "__main__":
     import sys
 
-    sys.argv = [
-        "test.py",
-        "--checkpoint",
-        "checkpoints/best_SISNR.pth",
-        "--test_dir",
-        "data/ShipsEar/train",
+    ckpt = "../experiments/dcamf_net/checkpoints/best_SISNR.pth"
+    test_dirs = [
+        ("../data/ShipsEar/train", "ShipsEar_train"),
+        ("../data/ShipsEar/test1", "ShipsEar_test1"),
+        ("../data/ShipsEar/test2", "ShipsEar_test2"),
+        ("../data/ShipsEar/test3", "ShipsEar_test3"),
+        ("../data/DeepShip/test",  "DeepShip_test"),
     ]
-    main()
-    """
-    sys.argv = ['test.py','--checkpoint','checkpoints/best_SISNR.pth' ,'--test_dir','data/ShipsEar/test1']
-    main()
-    sys.argv = ['test.py','--checkpoint','checkpoints/best_SISNR.pth' ,'--test_dir','data/ShipsEar/test2']
-    main()
-    sys.argv = ['test.py','--checkpoint','checkpoints/best_SISNR.pth' ,'--test_dir','data/ShipsEar/test3']
-    main()
-    sys.argv = ['test.py','--checkpoint','checkpoints/best_SISNR.pth' ,'--test_dir','data/DeepShip/test']
-    main()
-
-    sys.argv = ['test.py','--checkpoint','checkpoints/best_loss.pth' ,'--test_dir','data/ShipsEar/test1']
-    main()
-    sys.argv = ['test.py','--checkpoint','checkpoints/best_loss.pth' ,'--test_dir','data/ShipsEar/test2']
-    main()
-    sys.argv = ['test.py','--checkpoint','checkpoints/best_loss.pth' ,'--test_dir','data/ShipsEar/test3']
-    main()
-    sys.argv = ['test.py','--checkpoint','checkpoints/best_loss.pth' ,'--test_dir','data/DeepShip/test']
-    main()
-    """
+    for test_dir, subname in test_dirs:
+        output_dir = f"../experiments/dcamf_net/denoised/{subname}"
+        sys.argv = ["test.py", "--checkpoint", ckpt, "--test_dir", test_dir, "--output_dir", output_dir]
+        main()
