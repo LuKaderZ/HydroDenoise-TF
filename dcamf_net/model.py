@@ -12,11 +12,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-bias = 0
-
 # ==============================================================================
 # Helper: Segmentation & Overlap-Add
 # ==============================================================================
+
 
 def segment(x, chunk_size, hop_size):
     """
@@ -36,7 +35,7 @@ def segment(x, chunk_size, hop_size):
     if pad_len > 0:
         x = F.pad(x, (0, pad_len))
     x = x.unfold(2, chunk_size, hop_size)  # (B, C, S, K)
-    x = x.permute(0, 1, 3, 2)              # (B, C, K, S)
+    x = x.permute(0, 1, 3, 2)  # (B, C, K, S)
     return x
 
 
@@ -60,8 +59,8 @@ def overlap_add(x, chunk_size, hop_size, original_len):
     norm = x.new_zeros(1, 1, T_out)
     for i in range(S):
         start = i * hop_size
-        output[:, :, start:start + K] += x[:, :, i, :]
-        norm[:, :, start:start + K] += 1.0
+        output[:, :, start : start + K] += x[:, :, i, :]
+        norm[:, :, start : start + K] += 1.0
     output = output / norm.clamp(min=1.0)
     return output[:, :, :original_len]
 
@@ -69,6 +68,7 @@ def overlap_add(x, chunk_size, hop_size, original_len):
 # ==============================================================================
 # 1. Convolutional Encoder
 # ==============================================================================
+
 
 class ConvEncoder(nn.Module):
     """
@@ -78,13 +78,23 @@ class ConvEncoder(nn.Module):
     Then segment W_e into overlapping chunks of length K with hop K//2.
     """
 
-    def __init__(self, in_channels=1, out_channels=256,
-                 kernel_size=80, stride=40,
-                 chunk_size=500, hop_size=250):
+    def __init__(
+        self,
+        in_channels=1,
+        out_channels=256,
+        kernel_size=80,
+        stride=40,
+        chunk_size=500,
+        hop_size=250,
+    ):
         super().__init__()
-        self.conv = nn.Conv1d(in_channels, out_channels,
-                              kernel_size=kernel_size, stride=stride,
-                              bias=False)
+        self.conv = nn.Conv1d(
+            in_channels,
+            out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            bias=False,
+        )
         self.prelu = nn.PReLU()
         self.layer_norm = nn.LayerNorm(out_channels)
         self.chunk_size = chunk_size
@@ -99,7 +109,7 @@ class ConvEncoder(nn.Module):
             W_e: (B, F, T')   encoder features
             T_enc: int         T' length
         """
-        W_e = self.conv(x)          # (B, F, T')
+        W_e = self.conv(x)  # (B, F, T')
         W_e = self.prelu(W_e)
         W_e = self.layer_norm(W_e.transpose(1, 2)).transpose(1, 2)  # (B, F, T')
         T_enc = W_e.shape[-1]
@@ -110,6 +120,7 @@ class ConvEncoder(nn.Module):
 # ==============================================================================
 # 2. Convolution-Enhanced Multi-Head Self-Attention (CE-MHSA)
 # ==============================================================================
+
 
 class ConvEnhancedMHSA(nn.Module):
     """
@@ -122,14 +133,21 @@ class ConvEnhancedMHSA(nn.Module):
         self.n_heads = n_heads
 
         self.ln_mhsa = nn.LayerNorm(d_model)
-        self.mhsa = nn.MultiheadAttention(d_model, n_heads,
-                                          dropout=dropout, batch_first=True)
+        self.mhsa = nn.MultiheadAttention(
+            d_model, n_heads, dropout=dropout, batch_first=True
+        )
 
         self.pw_conv1 = nn.Conv1d(d_model, d_model * 2, kernel_size=1, bias=True)
 
         padding = (dw_kernel_size - 1) // 2
-        self.dw_conv = nn.Conv1d(d_model, d_model, kernel_size=dw_kernel_size,
-                                 padding=padding, groups=d_model, bias=True)
+        self.dw_conv = nn.Conv1d(
+            d_model,
+            d_model,
+            kernel_size=dw_kernel_size,
+            padding=padding,
+            groups=d_model,
+            bias=True,
+        )
         self.bn = nn.BatchNorm1d(d_model)
         self.swish_beta = nn.Parameter(torch.ones(1))
 
@@ -162,6 +180,7 @@ class ConvEnhancedMHSA(nn.Module):
 # 3. Improved FFN
 # ==============================================================================
 
+
 class ImprovedFFN(nn.Module):
     def __init__(self, d_model=256, hidden_size=512, dropout=0.1):
         super().__init__()
@@ -182,6 +201,7 @@ class ImprovedFFN(nn.Module):
 # 4. DCAM Block (dual-branch with mask generation)
 # ==============================================================================
 
+
 class DCAMBlock(nn.Module):
     """
     DCAM Block with dual-branch architecture.
@@ -190,28 +210,25 @@ class DCAMBlock(nn.Module):
         mask:  (B, F, K, S)  mask generated from this block's output
     """
 
-    def __init__(self, d_model=256, n_heads=4, ffn_hidden=512,
-                 dw_kernel_size=31, dropout=0.1):
+    def __init__(
+        self, d_model=256, n_heads=4, ffn_hidden=512, dw_kernel_size=31, dropout=0.1
+    ):
         super().__init__()
 
-        self.global_cemhsa = ConvEnhancedMHSA(d_model, n_heads,
-                                               dw_kernel_size, dropout)
+        self.global_cemhsa = ConvEnhancedMHSA(d_model, n_heads, dw_kernel_size, dropout)
         self.global_ffn = ImprovedFFN(d_model, ffn_hidden, dropout)
 
-        self.local_cemhsa = ConvEnhancedMHSA(d_model, n_heads,
-                                              dw_kernel_size, dropout)
+        self.local_cemhsa = ConvEnhancedMHSA(d_model, n_heads, dw_kernel_size, dropout)
         self.local_ffn = ImprovedFFN(d_model, ffn_hidden, dropout)
 
         # --- Mask generation branch (applied on W_out) ---
         self.mask_conv = nn.Sequential(
-            nn.PReLU(),
-            nn.Conv1d(d_model, d_model, kernel_size=1, bias=True),
-            nn.Tanh()
+            nn.PReLU(), nn.Conv1d(d_model, d_model, kernel_size=1, bias=True), nn.Tanh()
         )
         self.mask_gate = nn.Sequential(
             nn.PReLU(),
             nn.Conv1d(d_model, d_model, kernel_size=1, bias=True),
-            nn.Sigmoid()
+            nn.Sigmoid(),
         )
 
     def forward(self, W):
@@ -227,7 +244,7 @@ class DCAMBlock(nn.Module):
         W_local_in = W.permute(0, 3, 2, 1).contiguous().view(B * S, K, F)
         W_local = self.local_cemhsa(W_local_in)
         W_local = self.local_ffn(W_local)
-        W_local = W_local.view(B, S, K, F).permute(0, 3, 2, 1)   # (B, F, K, S)
+        W_local = W_local.view(B, S, K, F).permute(0, 3, 2, 1)  # (B, F, K, S)
 
         # Fusion
         W_out = W + 0.5 * W_local + 0.5 * W_global
@@ -235,11 +252,11 @@ class DCAMBlock(nn.Module):
         # Generate mask from W_out (in chunk domain)
         B, F, K, S = W_out.shape
         W_for_mask = W_out.permute(0, 2, 3, 1).reshape(B, K * S, F)  # (B, K*S, F)
-        W_for_mask = W_for_mask.transpose(1, 2)                      # (B, F, K*S)
+        W_for_mask = W_for_mask.transpose(1, 2)  # (B, F, K*S)
 
-        mask_conv = self.mask_conv(W_for_mask)   # (B, F, K*S)
-        mask_gate = self.mask_gate(W_for_mask)   # (B, F, K*S)
-        mask_flat = mask_conv * mask_gate        # (B, F, K*S)
+        mask_conv = self.mask_conv(W_for_mask)  # (B, F, K*S)
+        mask_gate = self.mask_gate(W_for_mask)  # (B, F, K*S)
+        mask_flat = mask_conv * mask_gate  # (B, F, K*S)
 
         # Reshape back to (B, F, K, S)
         mask = mask_flat.view(B, F, K, S)
@@ -251,13 +268,17 @@ class DCAMBlock(nn.Module):
 # 5. Transposed Convolutional Decoder
 # ==============================================================================
 
+
 class ConvDecoder(nn.Module):
-    def __init__(self, in_channels=256, out_channels=1,
-                 kernel_size=80, stride=40):
+    def __init__(self, in_channels=256, out_channels=1, kernel_size=80, stride=40):
         super().__init__()
-        self.deconv = nn.ConvTranspose1d(in_channels, out_channels,
-                                         kernel_size=kernel_size,
-                                         stride=stride, bias=False)
+        self.deconv = nn.ConvTranspose1d(
+            in_channels,
+            out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            bias=False,
+        )
 
     def forward(self, x):
         return self.deconv(x)
@@ -267,6 +288,7 @@ class ConvDecoder(nn.Module):
 # 6. Top-level DCAMFNet Model (Multi-layer Mask Fusion)
 # ==============================================================================
 
+
 class DCAMFNet(nn.Module):
     """
     DCAMFNet with multi-layer mask fusion.
@@ -274,32 +296,36 @@ class DCAMFNet(nn.Module):
     Each DCAM block produces a mask. All masks are fused via learnable weights.
     """
 
-    def __init__(self,
-                 in_channels=1,
-                 enc_channels=256,
-                 enc_kernel_size=80,
-                 enc_stride=40,
-                 chunk_size=500,
-                 hop_size=250,
-                 n_blocks=6,
-                 n_heads=8,
-                 ffn_hidden=512,
-                 dw_kernel_size=31,
-                 dropout=0.1):
+    def __init__(
+        self,
+        in_channels=1,
+        enc_channels=256,
+        enc_kernel_size=80,
+        enc_stride=40,
+        chunk_size=500,
+        hop_size=250,
+        n_blocks=6,
+        n_heads=8,
+        ffn_hidden=512,
+        dw_kernel_size=31,
+        dropout=0.1,
+    ):
         super().__init__()
 
-        self.encoder = ConvEncoder(in_channels, enc_channels,
-                                   enc_kernel_size, enc_stride,
-                                   chunk_size, hop_size)
+        self.encoder = ConvEncoder(
+            in_channels, enc_channels, enc_kernel_size, enc_stride, chunk_size, hop_size
+        )
 
-        self.dcam_blocks = nn.ModuleList([
-            DCAMBlock(enc_channels, n_heads, ffn_hidden,
-                       dw_kernel_size, dropout)
-            for _ in range(n_blocks)
-        ])
+        self.dcam_blocks = nn.ModuleList(
+            [
+                DCAMBlock(enc_channels, n_heads, ffn_hidden, dw_kernel_size, dropout)
+                for _ in range(n_blocks)
+            ]
+        )
 
-        self.decoder = ConvDecoder(enc_channels, in_channels,
-                                   enc_kernel_size, enc_stride)
+        self.decoder = ConvDecoder(
+            enc_channels, in_channels, enc_kernel_size, enc_stride
+        )
 
         self.chunk_size = chunk_size
         self.hop_size = hop_size
@@ -312,19 +338,20 @@ class DCAMFNet(nn.Module):
         T_orig = x.shape[-1]
 
         # 1. Encode
-        W, W_e, T_enc = self.encoder(x)   # W: (B,F,K,S), W_e: (B,F,T')
+        W, W_e, T_enc = self.encoder(x)  # W: (B,F,K,S), W_e: (B,F,T')
 
         # 2. Pass through DCAM blocks, collect features and masks
-        masks_chunk = []   # list of (B, F, K, S)
+        masks_chunk = []  # list of (B, F, K, S)
         for block in self.dcam_blocks:
-            W, mask = block(W)             # W updated, mask generated
+            W, mask = block(W)  # W updated, mask generated
             masks_chunk.append(mask)
 
         # 3. Convert each chunk mask to time-domain mask via overlap-add
         masks_time = []
         for mask_chunk in masks_chunk:
-            mask_t = overlap_add(mask_chunk, self.chunk_size,
-                                 self.hop_size, T_enc)   # (B, F, T')
+            mask_t = overlap_add(
+                mask_chunk, self.chunk_size, self.hop_size, T_enc
+            )  # (B, F, T')
             masks_time.append(mask_t)
 
         # 4. Learnable fusion of masks
@@ -332,7 +359,7 @@ class DCAMFNet(nn.Module):
         masks_stack = torch.stack(masks_time, dim=1)
         weights = F.softmax(self.mask_fusion_weights, dim=0)  # (n_blocks,)
         # Weighted sum
-        final_mask = torch.einsum('b n f t, n -> b f t', masks_stack, weights)
+        final_mask = torch.einsum("b n f t, n -> b f t", masks_stack, weights)
 
         # 5. Apply mask to encoder output (W_e) to get noise features
         W_noise = W_e * final_mask
@@ -376,7 +403,11 @@ if __name__ == "__main__":
     print(f"Input  shape: {x.shape}")
     print(f"Output shape: {s_e.shape}")
     print(f"Total parameters: {sum(p.numel() for p in model.parameters()):,}")
-    print(f"Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}")
-    print(f"Learnable mask fusion weights (softmax): {F.softmax(model.mask_fusion_weights, dim=0).detach().cpu().numpy()}")
+    print(
+        f"Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
+    )
+    print(
+        f"Learnable mask fusion weights (softmax): {F.softmax(model.mask_fusion_weights, dim=0).detach().cpu().numpy()}"
+    )
     assert s_e.shape == x.shape, f"Shape mismatch! {s_e.shape} != {x.shape}"
     print("✓ Forward pass successful — shapes match.")

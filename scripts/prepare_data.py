@@ -16,14 +16,14 @@ from tqdm import tqdm
 # ------------------------ 路径配置 ------------------------
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-RAW_DATA_DIR = os.path.join(PROJECT_ROOT, 'raw_data')
-OUTPUT_DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
+RAW_DATA_DIR = os.path.join(PROJECT_ROOT, "raw_data")
+OUTPUT_DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 # 音频参数
 SAMPLE_RATE = 16000
 SEGMENT_SEC = 3.0
 OVERLAP_SEC = 1.0
-TAIL_KEEP_THRESHOLD = 0.95          # 丢弃尾部不足95%的片段
+TAIL_KEEP_THRESHOLD = 0.95  # 丢弃尾部不足95%的片段
 
 # 训练信噪比范围（三组区间）
 SNR_RANGES = [(-15.0, -10.0), (-10.0, -5.0), (-5.0, 0.0)]
@@ -36,7 +36,8 @@ RANDOM_SEED = 42
 RESAMPLE_QUALITY = 5.0
 
 # 支持的音频扩展名
-AUDIO_EXTENSIONS = {'.wav', '.flac', '.ogg', '.mp3', '.aiff', '.aif'}
+AUDIO_EXTENSIONS = {".wav", ".flac", ".ogg", ".mp3", ".aiff", ".aif"}
+
 
 # ------------------------ 工具函数 ------------------------
 def collect_audio_files(directory):
@@ -49,6 +50,7 @@ def collect_audio_files(directory):
             if os.path.splitext(f)[1].lower() in AUDIO_EXTENSIONS:
                 files.append(os.path.join(root, f))
     return files
+
 
 def load_and_resample(filepath, sr=16000, keep_stereo=False):
     """加载音频并重采样到目标采样率，转单声道（可选）"""
@@ -79,20 +81,28 @@ def load_and_resample(filepath, sr=16000, keep_stereo=False):
         up = sr // gcd
         down = orig_sr // gcd
         if data.ndim == 1:
-            data = scipy.signal.resample_poly(data, up, down,
-                                              window=('kaiser', RESAMPLE_QUALITY))
+            data = scipy.signal.resample_poly(
+                data, up, down, window=("kaiser", RESAMPLE_QUALITY)
+            )
         else:
             resampled_channels = []
             for ch in range(data.shape[1]):
-                ch_data = scipy.signal.resample_poly(data[:, ch], up, down,
-                                                     window=('kaiser', RESAMPLE_QUALITY))
+                ch_data = scipy.signal.resample_poly(
+                    data[:, ch], up, down, window=("kaiser", RESAMPLE_QUALITY)
+                )
                 resampled_channels.append(ch_data)
             data = np.stack(resampled_channels, axis=1)
         data = data.astype(np.float32)
     return data
 
-def segment_audio(waveform, sr, segment_sec=SEGMENT_SEC,
-                  overlap_sec=OVERLAP_SEC, keep_threshold=TAIL_KEEP_THRESHOLD):
+
+def segment_audio(
+    waveform,
+    sr,
+    segment_sec=SEGMENT_SEC,
+    overlap_sec=OVERLAP_SEC,
+    keep_threshold=TAIL_KEEP_THRESHOLD,
+):
     """切割音频为固定长度片段，丢弃尾部不足阈值的部分"""
     segment_len = int(sr * segment_sec)
     hop_len = int(sr * (segment_sec - overlap_sec))
@@ -100,19 +110,20 @@ def segment_audio(waveform, sr, segment_sec=SEGMENT_SEC,
     start = 0
     if waveform.ndim == 1:
         while start + segment_len <= len(waveform):
-            segments.append(waveform[start:start + segment_len])
+            segments.append(waveform[start : start + segment_len])
             start += hop_len
         remaining = len(waveform) - start
         if remaining >= segment_len * keep_threshold:
-            segments.append(waveform[start:start + segment_len])
+            segments.append(waveform[start : start + segment_len])
     else:
         while start + segment_len <= waveform.shape[0]:
-            segments.append(waveform[start:start + segment_len, :])
+            segments.append(waveform[start : start + segment_len, :])
             start += hop_len
         remaining = waveform.shape[0] - start
         if remaining >= segment_len * keep_threshold:
-            segments.append(waveform[start:start + segment_len, :])
+            segments.append(waveform[start : start + segment_len, :])
     return segments
+
 
 def mix_at_snr(clean, noise, target_snr_db):
     """按目标 SNR 混合信号，同步缩放避免截幅"""
@@ -124,21 +135,21 @@ def mix_at_snr(clean, noise, target_snr_db):
             noise = np.tile(noise, reps)
         if len(noise) > T:
             start = random.randint(0, len(noise) - T)
-            noise = noise[start:start + T]
+            noise = noise[start : start + T]
     else:
         if noise.shape[0] < T:
             reps = math.ceil(T / noise.shape[0])
             noise = np.tile(noise, (reps, 1))
         if noise.shape[0] > T:
             start = random.randint(0, noise.shape[0] - T)
-            noise = noise[start:start + T, :]
+            noise = noise[start : start + T, :]
     # 维度匹配
     if clean.ndim == 1 and noise.ndim == 2:
         clean = np.tile(clean[:, np.newaxis], (1, noise.shape[1]))
     elif clean.ndim == 2 and noise.ndim == 1:
         noise = np.tile(noise[:, np.newaxis], (1, clean.shape[1]))
-    P_s = np.mean(clean ** 2) + 1e-10
-    P_n = np.mean(noise ** 2) + 1e-10
+    P_s = np.mean(clean**2) + 1e-10
+    P_n = np.mean(noise**2) + 1e-10
     alpha = math.sqrt(P_s / (P_n * (10.0 ** (target_snr_db / 10.0))))
     noisy = clean + alpha * noise
     max_amp = np.max(np.abs(noisy))
@@ -148,17 +159,19 @@ def mix_at_snr(clean, noise, target_snr_db):
         clean = clean * scale
     return clean.astype(np.float32), noisy.astype(np.float32)
 
+
 def save_wav(filepath, waveform, sr=16000):
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     waveform = np.clip(waveform, -1.0, 1.0)
     wavfile.write(filepath, sr, waveform.astype(np.float32))
 
+
 # ------------------------ ShipsEar 数据生成 ------------------------
 class ShipsEarPipeline:
     def __init__(self, raw_base, output_base):
         self.sr = SAMPLE_RATE
-        raw_dir = os.path.join(raw_base, 'ShipsEar')
-        self.output_dir = os.path.join(output_base, 'ShipsEar')
+        raw_dir = os.path.join(raw_base, "ShipsEar")
+        self.output_dir = os.path.join(output_base, "ShipsEar")
         random.seed(RANDOM_SEED)
         np.random.seed(RANDOM_SEED)
 
@@ -166,12 +179,12 @@ class ShipsEarPipeline:
         print("  ShipsEar Pipeline — 加载原始音频")
         print("=" * 60)
 
-        self.passenger_segs = self._load_category(raw_dir, 'passenger')
-        self.roro_segs = self._load_category(raw_dir, 'roro')
-        self.motorboat_segs = self._load_category(raw_dir, 'motorboat')
-        self.wind_segs = self._load_category(raw_dir, 'wind')
-        self.flow_segs = self._load_category(raw_dir, 'flow')
-        self.reservoir_segs = self._load_category(raw_dir, 'reservoir')
+        self.passenger_segs = self._load_category(raw_dir, "passenger")
+        self.roro_segs = self._load_category(raw_dir, "roro")
+        self.motorboat_segs = self._load_category(raw_dir, "motorboat")
+        self.wind_segs = self._load_category(raw_dir, "wind")
+        self.flow_segs = self._load_category(raw_dir, "flow")
+        self.reservoir_segs = self._load_category(raw_dir, "reservoir")
 
         # 干净信号池（客船 + 滚装船）
         self.train_clean_pool = self.passenger_segs + self.roro_segs
@@ -218,7 +231,7 @@ class ShipsEarPipeline:
         test1_clean = [self.train_clean_pool[i] for i in test_idx]
 
         # 生成训练集（自动划分验证集在后续训练脚本中进行）
-        train_dir = os.path.join(self.output_dir, 'train')
+        train_dir = os.path.join(self.output_dir, "train")
         print(f"\n--- 生成训练集 ({n_train} 对, SNR 三组区间) ---")
         for i, idx in enumerate(tqdm(train_idx, desc="训练集")):
             # 从三个区间随机选择一个区间，再均匀采样
@@ -227,17 +240,17 @@ class ShipsEarPipeline:
             noise_seg = random.choice(self.train_noise_pool)
             c, n = mix_at_snr(self.train_clean_pool[idx], noise_seg, snr)
             fname = f"{i:06d}.wav"
-            save_wav(os.path.join(train_dir, 'clean', fname), c, self.sr)
-            save_wav(os.path.join(train_dir, 'noisy', fname), n, self.sr)
+            save_wav(os.path.join(train_dir, "clean", fname), c, self.sr)
+            save_wav(os.path.join(train_dir, "noisy", fname), n, self.sr)
 
         # 测试集1：已知船型 + 已知噪声
-        self._gen_test('test1', test1_clean, self.train_noise_pool)
+        self._gen_test("test1", test1_clean, self.train_noise_pool)
 
         # 测试集2：未知船型 (摩托艇) + 已知噪声
-        self._gen_test('test2', self.motorboat_segs, self.train_noise_pool)
+        self._gen_test("test2", self.motorboat_segs, self.train_noise_pool)
 
         # 测试集3：已知船型 + 未知噪声 (水库)
-        self._gen_test('test3', test1_clean, self.unseen_noise_pool)
+        self._gen_test("test3", test1_clean, self.unseen_noise_pool)
 
     def _gen_test(self, name, clean_pool, noise_pool):
         """生成一个测试集，固定三个 SNR: -15, -10, -5 dB"""
@@ -249,18 +262,19 @@ class ShipsEarPipeline:
                 noise_seg = random.choice(noise_pool)
                 c, n = mix_at_snr(clean_seg, noise_seg, target_snr)
                 fname = f"{count:06d}.wav"
-                save_wav(os.path.join(test_dir, 'clean', fname), c, self.sr)
-                save_wav(os.path.join(test_dir, 'noisy', fname), n, self.sr)
+                save_wav(os.path.join(test_dir, "clean", fname), c, self.sr)
+                save_wav(os.path.join(test_dir, "noisy", fname), n, self.sr)
                 count += 1
         print(f"  保存 {count} 对音频")
+
 
 # ------------------------ DeepShip 数据生成 ------------------------
 class DeepShipPipeline:
     def __init__(self, raw_base, output_base, noise_pool):
         self.sr = SAMPLE_RATE
-        raw_dir = os.path.join(raw_base, 'DeepShip')
-        self.output_dir = os.path.join(output_base, 'DeepShip', 'test')
-        self.noise_pool = noise_pool   # 使用传入的噪声池（所有 ShipsEar 噪声）
+        raw_dir = os.path.join(raw_base, "DeepShip")
+        self.output_dir = os.path.join(output_base, "DeepShip", "test")
+        self.noise_pool = noise_pool  # 使用传入的噪声池（所有 ShipsEar 噪声）
         random.seed(RANDOM_SEED)
         np.random.seed(RANDOM_SEED)
 
@@ -269,7 +283,7 @@ class DeepShipPipeline:
         print("=" * 60)
 
         self.all_ships = []
-        ship_classes = ['Cargo', 'Tug', 'Passengership', 'Tanker']
+        ship_classes = ["Cargo", "Tug", "Passengership", "Tanker"]
         for cls in ship_classes:
             cls_dir = os.path.join(raw_dir, cls)
             files = collect_audio_files(cls_dir)
@@ -298,10 +312,11 @@ class DeepShipPipeline:
             noise_seg = random.choice(self.noise_pool)
             c, n = mix_at_snr(clean_seg, noise_seg, snr)
             fname = f"{i:06d}.wav"
-            save_wav(os.path.join(self.output_dir, 'clean', fname), c, self.sr)
-            save_wav(os.path.join(self.output_dir, 'noisy', fname), n, self.sr)
+            save_wav(os.path.join(self.output_dir, "clean", fname), c, self.sr)
+            save_wav(os.path.join(self.output_dir, "noisy", fname), n, self.sr)
 
         print(f"  保存 {len(selected)} 对音频")
+
 
 # ------------------------ 主函数 ------------------------
 def main():
@@ -327,5 +342,6 @@ def main():
     print(f"  输出目录: {os.path.abspath(OUTPUT_DATA_DIR)}")
     print("=" * 60)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

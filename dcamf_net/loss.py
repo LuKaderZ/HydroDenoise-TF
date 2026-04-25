@@ -17,12 +17,11 @@ def sisnr(estimate, target, eps=1e-8):
     target = target - target.mean(dim=-1, keepdim=True)
 
     dot = torch.sum(estimate * target, dim=-1, keepdim=True)
-    s_target = dot * target / (torch.sum(target ** 2, dim=-1, keepdim=True) + eps)
+    s_target = dot * target / (torch.sum(target**2, dim=-1, keepdim=True) + eps)
     e_noise = estimate - s_target
 
     si_snr = 10 * torch.log10(
-        torch.sum(s_target ** 2, dim=-1) /
-        (torch.sum(e_noise ** 2, dim=-1) + eps) + eps
+        torch.sum(s_target**2, dim=-1) / (torch.sum(e_noise**2, dim=-1) + eps) + eps
     )
     return si_snr
 
