@@ -20,6 +20,10 @@
     git clone https://github.com/LuKaderZ/HydroDenoise-TF.git
     cd HydroDenoise-TF
 
+安装依赖：
+
+    pip install -r requirements.txt
+
 ## 步骤3：准备原始数据
 
 下载 **ShipsEar** 和 **DeepShip** 数据集，解压后按照以下结构放入raw_data/目录：
