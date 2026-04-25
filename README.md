@@ -8,9 +8,9 @@
 
 启动实例后，在 **JupyterLab终端** 中执行后续步骤。
 
-## 步骤2：克隆仓库
+## 步骤2：配置环境，克隆仓库
 
-在**JupyterLab终端**执行下面语句：
+在**JupyterLab终端**执行下面语句加速GitHub访问：
 
     source /etc/network_turbo
 
@@ -19,7 +19,7 @@
     conda create -n dcamf python=3.10 -y
     conda init
 
-执行完后重启终端
+执行完后重启终端，安装环境依赖：
 
     conda activate dcamf
     
@@ -65,3 +65,19 @@ raw_data/
 
     cd ../dcamf_net
     python train.py --train_dir ../data/ShipsEar/train --lr 5e-4 --save_dir ../experiments/dcamf_net/checkpoints --use_tensorboard
+
+## 步骤6：本地推理与绘图
+
+训练完成后，服务器上保存了最佳模型权重 `best_SISNR.pth`。后续推理和绘图在**本地**进行。
+
+将以下文件从服务器下载到本地项目对应目录：
+- 服务器路径：`/root/autodl-tmp/HydroDenoise-TF/experiments/dcamf_net/checkpoints/best_SISNR.pth`
+- 本地路径：`experiments/dcamf_net/checkpoints/best_SISNR.pth`
+
+在**本地**项目根目录下的 `dcamf_net/` 文件夹中执行：
+
+    python test.py
+
+在 MATLAB 中打开并运行：
+
+    matlab/plot_dcamf_metrics.m
