@@ -1,5 +1,10 @@
-%% DCAMF-Net 指标计算 + 绘图（直接读取降噪音频）
+%% DCAMF-Net 柱状图（图4-3）
 clear; clc; close all;
+
+% ==================== 字体设置（支持中文） ====================
+set(0, 'DefaultAxesFontName', 'Microsoft YaHei');
+set(0, 'DefaultTextFontName', 'Microsoft YaHei');
+set(0, 'DefaultAxesFontSize', 11);
 
 % ==================== 路径配置 ====================
 projectRoot = 'C:\Users\XUWEILUN\Desktop\HydroDenoise-TF';
@@ -11,18 +16,18 @@ if ~exist(figuresDir, 'dir'), mkdir(figuresDir); end
 % ==================== 参数 ====================
 targetSNRs = [-15, -10, -5];
 
-% 测试集定义：{数据子路径, 降噪音频子目录名, 显示名称}
 testSets = {
-    'ShipsEar/test1', 'ShipsEar_test1', 'Test1 (Known ship + Known noise)';
-    'ShipsEar/test2', 'ShipsEar_test2', 'Test2 (Unseen ship + Known noise)';
-    'ShipsEar/test3', 'ShipsEar_test3', 'Test3 (Known ship + Unseen noise)';
-    'DeepShip/test',  'DeepShip_test',  'DeepShip';
+    'ShipsEar/test1', 'ShipsEar_test1', '测试集一 (已知船型+已知噪声)';
+    'ShipsEar/test2', 'ShipsEar_test2', '测试集二 (未知船型+已知噪声)';
+    'ShipsEar/test3', 'ShipsEar_test3', '测试集三 (已知船型+未知噪声)';
 };
 
-% ==================== 计算指标 ====================
-allResults = [];  % 存储 [setIdx, snr, sisnri, sdri]
+numSets = size(testSets, 1);
 
-for s = 1:size(testSets, 1)
+% ==================== 计算每个样本的提升量 ====================
+allResults = [];
+
+for s = 1:numSets
     dataSubpath = testSets{s, 1};
     denoisedSubname = testSets{s, 2};
     
@@ -50,7 +55,7 @@ for s = 1:size(testSets, 1)
         
         if ~exist(denoisedPath, 'file'), continue; end
         
-        [clean, fs] = audioread(cleanPath);
+        [clean, ~] = audioread(cleanPath);
         noisy = audioread(noisyPath);
         denoised = audioread(denoisedPath);
         
@@ -61,12 +66,10 @@ for s = 1:size(testSets, 1)
         minLen = min([length(clean), length(noisy), length(denoised)]);
         clean = clean(1:minLen); noisy = noisy(1:minLen); denoised = denoised(1:minLen);
         
-        % 实际 SNR
         noiseActual = noisy - clean;
         actualSNR = 10 * log10(mean(clean.^2) / (mean(noiseActual.^2) + 1e-10));
         [~, snrIdx] = min(abs(targetSNRs - actualSNR));
         
-        % SI-SNR
         sisnrIn = computeSISNR(noisy, clean);
         sisnrOut = computeSISNR(denoised, clean);
         sdrIn = computeSDR(noisy, clean);
@@ -76,8 +79,7 @@ for s = 1:size(testSets, 1)
     end
 end
 
-% ==================== 汇总均值 ====================
-numSets = size(testSets, 1) - 1;  % 前3个是 ShipsEar
+% ==================== 聚合均值 ====================
 sisnriShips = nan(numSets, length(targetSNRs));
 sdriShips   = nan(numSets, length(targetSNRs));
 
@@ -91,86 +93,82 @@ for s = 1:numSets
     end
 end
 
-% DeepShip
-deepMask = (allResults(:,1) == 4);
-if any(deepMask)
-    sisnriDeep = mean(allResults(deepMask, 3));
-    sdriDeep   = mean(allResults(deepMask, 4));
-    hasDeep = true;
-else
-    hasDeep = false;
-end
-
 % ==================== 绘图 ====================
-set(0, 'DefaultAxesFontName', 'Times New Roman');
-set(0, 'DefaultTextFontName', 'Times New Roman');
-set(0, 'DefaultAxesFontSize', 11);
+grayColors = {[0.25 0.25 0.25], [0.55 0.55 0.55], [0.85 0.85 0.85]};
+legendNames = testSets(:, 3);
 
-figure('Units', 'centimeters', 'Position', [2, 2, 16, 8], ...
+figure('Units', 'centimeters', 'Position', [2, 2, 32, 16], ...
        'Color', 'white', 'PaperPositionMode', 'auto');
 
-grayColors = {[0.25 0.25 0.25], [0.55 0.55 0.55], [0.85 0.85 0.85]};
-legendNames = testSets(1:3, 3);
-
-% ---- SI-SNRi ----
-subplot(1,2,1);
+% ---- 左图：SI-SNRi ----
+subplot(1, 2, 1);
+hold on;
 barData = sisnriShips';
-b = bar(barData, 0.8, 'grouped', 'EdgeColor', 'k', 'LineWidth', 0.6);
-for i = 1:length(b)
-    b(i).FaceColor = grayColors{i};
+b1 = bar(barData, 0.8, 'grouped', 'EdgeColor', 'k', 'LineWidth', 0.6);
+for i = 1:length(b1)
+    b1(i).FaceColor = grayColors{i};
 end
-xlabel('Input SNR (dB)'); ylabel('SI-SNRi (dB)');
-title('(a) SI-SNR Improvement', 'FontWeight', 'bold');
-set(gca, 'XTickLabel', targetSNRs);
-grid on; box on;
-for i = 1:length(b)
-    x = b(i).XEndPoints; y = b(i).YEndPoints;
+for i = 1:length(b1)
+    x = b1(i).XEndPoints;
+    y = b1(i).YEndPoints;
     for j = 1:length(y)
         if ~isnan(y(j))
             text(x(j), y(j), sprintf('%.2f', y(j)), ...
-                'HorizontalAlignment','center','VerticalAlignment','bottom','FontSize',9);
+                'HorizontalAlignment', 'center', ...
+                'VerticalAlignment', 'bottom', ...
+                'FontSize', 9);
         end
     end
 end
+xlabel('输入信噪比 (dB)');
+ylabel('SI-SNRi (dB)');
+title('(a) SI-SNR 提升量', 'FontWeight', 'bold');
+set(gca, 'XTickLabel', targetSNRs);
+grid on; box on;
+legend(b1, legendNames, 'Location', 'northeast', 'FontSize', 9, 'Box', 'off');
+hold off;
 
-% ---- SDRi ----
-subplot(1,2,2);
+% ---- 右图：SDRi ----
+subplot(1, 2, 2);
+hold on;
 barData = sdriShips';
-b = bar(barData, 0.8, 'grouped', 'EdgeColor', 'k', 'LineWidth', 0.6);
-for i = 1:length(b)
-    b(i).FaceColor = grayColors{i};
+b2 = bar(barData, 0.8, 'grouped', 'EdgeColor', 'k', 'LineWidth', 0.6);
+for i = 1:length(b2)
+    b2(i).FaceColor = grayColors{i};
 end
-xlabel('Input SNR (dB)'); ylabel('SDRi (dB)');
-title('(b) SDR Improvement', 'FontWeight', 'bold');
-set(gca, 'XTickLabel', targetSNRs);
-grid on; box on;
-for i = 1:length(b)
-    x = b(i).XEndPoints; y = b(i).YEndPoints;
+for i = 1:length(b2)
+    x = b2(i).XEndPoints;
+    y = b2(i).YEndPoints;
     for j = 1:length(y)
         if ~isnan(y(j))
             text(x(j), y(j), sprintf('%.2f', y(j)), ...
-                'HorizontalAlignment','center','VerticalAlignment','bottom','FontSize',9);
+                'HorizontalAlignment', 'center', ...
+                'VerticalAlignment', 'bottom', ...
+                'FontSize', 9);
         end
     end
 end
+xlabel('输入信噪比 (dB)');
+ylabel('SDRi (dB)');
+title('(b) SDR 提升量', 'FontWeight', 'bold');
+set(gca, 'XTickLabel', targetSNRs);
+grid on; box on;
+legend(b2, legendNames, 'Location', 'northeast', 'FontSize', 9, 'Box', 'off');
+hold off;
 
-lgd = legend(legendNames, 'Orientation', 'horizontal', 'FontSize', 10, 'Box', 'off');
-set(lgd, 'Position', [0.18, 0.01, 0.64, 0.05], 'Units', 'normalized');
+% ==================== 保存 ====================
+pdfPath = fullfile(figuresDir, 'fig4-3_DCAMF_Net_ShipsEar.pdf');
+pngPath = fullfile(figuresDir, 'fig4-3_DCAMF_Net_ShipsEar.png');
+exportgraphics(gcf, pdfPath, 'ContentType', 'vector');
+saveas(gcf, pngPath);
+fprintf('图片已保存至: %s\n', figuresDir);
 
-% 保存
-exportgraphics(gcf, fullfile(figuresDir, 'fig4-3_DCAMF_Net_ShipsEar.pdf'), 'ContentType', 'vector');
-saveas(gcf, fullfile(figuresDir, 'fig4-3_DCAMF_Net_ShipsEar.png'));
-fprintf('图片已保存至 figures/\n');
-
-% ==================== 打印汇总 ====================
+% ==================== 打印指标汇总 ====================
 fprintf('\n========== 指标汇总 ==========\n');
 for s = 1:numSets
     for t = 1:length(targetSNRs)
         fprintf('%-25s %-5d %-10.2f %-10.2f\n', testSets{s,1}, targetSNRs(t), sisnriShips(s,t), sdriShips(s,t));
     end
-end
-if hasDeep
-    fprintf('%-25s %-5s %-10.2f %-10.2f\n', 'DeepShip', '--', sisnriDeep, sdriDeep);
 end
 
 % ==================== 辅助函数 ====================
