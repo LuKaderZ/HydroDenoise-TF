@@ -1,6 +1,6 @@
 # HydroDenoise-TF
 
-## 步骤1 [AutoDL](https://www.autodl.com/)租用实例
+## 步骤1：[AutoDL](https://www.autodl.com/)租用实例
 
 规格详情：
 - **GPU**：RTX 5090（32 GB）× 1
@@ -8,7 +8,7 @@
 
 启动实例后，在 **JupyterLab终端** 中执行后续步骤。
 
-## 步骤2 克隆仓库
+## 步骤2：克隆仓库
 
 在**JupyterLab终端**执行下面语句：
 
@@ -20,9 +20,18 @@
     git clone https://github.com/LuKaderZ/HydroDenoise-TF.git
     cd HydroDenoise-TF
 
-安装依赖：
+创建conda环境：
 
-    pip install -r requirements.txt
+    conda create -n dcamf python=3.10 -y
+    conda init
+
+执行完后重启终端
+
+    conda activate dcamf
+
+    pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128 -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+    pip install tqdm numpy scipy matplotlib soundfile thop fast-bss-eval tensorboard
 
 ## 步骤3：准备原始数据
 
@@ -48,3 +57,8 @@ raw_data/
 
     cd scripts
     python prepare_data.py
+
+## 步骤5：开始训练
+
+    cd ../dcamf_net
+    python train.py --train_dir ../data/ShipsEar/train --lr 5e-4 --save_dir ../experiments/dcamf_net/checkpoints --use_tensorboard

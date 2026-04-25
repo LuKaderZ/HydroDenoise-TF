@@ -314,14 +314,14 @@ def parse_args():
         "--weight_decay", type=float, default=1e-4, help="Weight decay for Adam"
     )
     parser.add_argument("--batch_size", type=int, default=4)
-    parser.add_argument("--epochs", type=int, default=100)
+    parser.add_argument("--epochs", type=int, default=150)
     parser.add_argument("--max_grad_norm", type=float, default=5.0)
 
     parser.add_argument("--val_split", type=float, default=0.1)
     parser.add_argument("--sample_rate", type=int, default=16000)
 
     parser.add_argument(
-        "--T_0", type=int, default=200
+        "--T_0", type=int, default=150
     )  # 第一个周期长度，大于epochs则无重启
     parser.add_argument("--T_mult", type=int, default=20)
     parser.add_argument("--eta_min", type=float, default=1e-7)
