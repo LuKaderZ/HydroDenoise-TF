@@ -97,3 +97,5 @@ python test.py --gpu_ids=0 --ckpt_dir=exp --model_file=exp/models/best.pt --tt_l
 Conv‑TasNet
 
 直接运行train.py文件
+
+DPRNN操作类似上面
