@@ -32,7 +32,7 @@ class CheckPoint(object):
     def load(self, filename, device):
         if not os.path.isfile(filename):
             raise FileNotFoundError('No checkpoint found at {}'.format(filename))
-        ckpt = torch.load(filename, map_location=device)
+        ckpt = torch.load(filename, map_location=device, weights_only=False)
         self.ckpt_info = ckpt.ckpt_info 
         self.net_state_dict = ckpt.net_state_dict
         self.optim_state_dict = ckpt.optim_state_dict

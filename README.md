@@ -81,3 +81,15 @@ raw_data/
 在 MATLAB 中打开并运行：
 
     matlab/plot_dcamf_metrics.m
+
+## 步骤7：基线模型
+
+[CRN](https://github.com/JupiterEthan/CRN-causal)删除了`.git`文件夹，修改了`stft.py`文件进行版本适配,`models.py` 修改为`weights_only=False`以适配版本。
+
+依次执行`adapter`下的三个数据适配脚本。
+
+cd baselines\CRN-causal\scripts
+
+python train.py --gpu_ids=0 --tr_list=../filelists/tr_list.txt --cv_file=../data/datasets/cv/cv.ex --ckpt_dir=exp --logging_period=5 --lr=0.0002 --time_log=./time.log --unit=utt --batch_size=16 --buffer_size=32 --max_n_epochs=150
+
+python test.py --gpu_ids=0 --ckpt_dir=exp --model_file=exp/models/best.pt --tt_list=../filelists/tt_list.txt --est_path=../data/estimates

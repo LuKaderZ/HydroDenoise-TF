@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-import scipy
 
 
 class STFT(nn.Module):
@@ -11,11 +10,13 @@ class STFT(nn.Module):
 
         self.win_size = win_size
         self.hop_size = hop_size
+        # 计算重叠段数，用于OLA归一化窗函数
         self.n_overlap = self.win_size // self.hop_size
         self.requires_grad = requires_grad
 
-        win = torch.from_numpy(scipy.hamming(self.win_size).astype(np.float32))
-        win = F.relu(win)
+        # 使用 PyTorch 内置汉明窗，避免 SciPy 依赖
+        win = torch.hamming_window(self.win_size, periodic=False, dtype=torch.float32)
+        # 原代码中不合理的 ReLU 已移除，汉明窗本身为正值，无需激活函数
         win = nn.Parameter(data=win, requires_grad=self.requires_grad)
         self.register_parameter('win', win)
 
@@ -26,7 +27,7 @@ class STFT(nn.Module):
         self.register_buffer('fourier_basis_r', torch.from_numpy(fourier_basis_r))
         self.register_buffer('fourier_basis_i', torch.from_numpy(fourier_basis_i))
 
-        idx = torch.tensor(range(self.win_size//2-1, 0, -1), dtype=torch.long)
+        idx = torch.tensor(range(self.win_size//2 - 1, 0, -1), dtype=torch.long)
         self.register_buffer('idx', idx)
 
         self.eps = torch.finfo(torch.float32).eps
@@ -51,7 +52,7 @@ class STFT(nn.Module):
     def window(self, n_frames):
         assert n_frames >= 2
         seg = sum([self.win[i*self.hop_size:(i+1)*self.hop_size] for i in range(self.n_overlap)])
-        seg = seg.unsqueeze(dim=-1).expand((self.hop_size, n_frames-self.n_overlap+1))
+        seg = seg.unsqueeze(dim=-1).expand((self.hop_size, n_frames - self.n_overlap + 1))
         window = seg.contiguous().view(-1).contiguous()
 
         return window
@@ -64,16 +65,16 @@ class STFT(nn.Module):
 
         sig = sig.view(batch_size, 1, n_samples)
         kernel = self.kernel_fw()
-        kernel_r = kernel[...,0]
-        kernel_i = kernel[...,1]
+        kernel_r = kernel[..., 0]
+        kernel_i = kernel[..., 1]
         spec_r = F.conv1d(sig,
                           kernel_r[:cutoff],
                           stride=self.hop_size,
-                          padding=self.win_size-self.hop_size)
+                          padding=self.win_size - self.hop_size)
         spec_i = F.conv1d(sig,
                           kernel_i[:cutoff],
                           stride=self.hop_size,
-                          padding=self.win_size-self.hop_size)
+                          padding=self.win_size - self.hop_size)
         spec_r = spec_r.transpose(-1, -2).contiguous()
         spec_i = spec_i.transpose(-1, -2).contiguous()
 
@@ -83,8 +84,8 @@ class STFT(nn.Module):
         return spec_r, spec_i
 
     def istft(self, x):
-        spec_r = x[:,0,:,:]
-        spec_i = x[:,1,:,:]
+        spec_r = x[:, 0, :, :]
+        spec_i = x[:, 1, :, :]
 
         n_frames = spec_r.shape[1]
 
@@ -94,17 +95,17 @@ class STFT(nn.Module):
         spec_i = spec_i.transpose(-1, -2).contiguous()
 
         kernel = self.kernel_bw()
-        kernel_r = kernel[...,0].transpose(0, -1)
-        kernel_i = kernel[...,1].transpose(0, -1)
+        kernel_r = kernel[..., 0].transpose(0, -1)
+        kernel_i = kernel[..., 1].transpose(0, -1)
 
         sig = F.conv_transpose1d(spec_r,
                                  kernel_r,
                                  stride=self.hop_size,
-                                 padding=self.win_size-self.hop_size) \
+                                 padding=self.win_size - self.hop_size) \
             - F.conv_transpose1d(spec_i,
                                  kernel_i,
                                  stride=self.hop_size,
-                                 padding=self.win_size-self.hop_size)
+                                 padding=self.win_size - self.hop_size)
         sig = sig.squeeze(dim=1)
 
         window = self.window(n_frames)
