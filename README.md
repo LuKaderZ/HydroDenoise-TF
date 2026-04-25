@@ -14,12 +14,6 @@
 
     source /etc/network_turbo
 
-对仓库进行克隆：
-
-    cd /root/autodl-tmp
-    git clone https://github.com/LuKaderZ/HydroDenoise-TF.git
-    cd HydroDenoise-TF
-
 创建conda环境：
 
     conda create -n dcamf python=3.10 -y
@@ -28,10 +22,19 @@
 执行完后重启终端
 
     conda activate dcamf
-
+    
     pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
     pip install tqdm numpy scipy matplotlib soundfile thop fast-bss-eval tensorboard
+    
+对仓库进行克隆：
+
+    cd /root/autodl-tmp
+
+    git clone https://github.com/LuKaderZ/HydroDenoise-TF.git
+
+    cd HydroDenoise-TF
+
 
 ## 步骤3：准备原始数据
 

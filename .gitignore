@@ -209,3 +209,6 @@ __marimo__/
 # Data
 raw_data/
 data/
+
+# Experiment outputs
+experiments/
