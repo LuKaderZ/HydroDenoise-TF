@@ -15,7 +15,7 @@ files = dir(fullfile(cleanDir, '*.wav'));
 sisnri_cell = {[] [] []}; sdri_cell = {[] [] []};
 
 for f = 1:length(files)
-    estFile = fullfile(denoisedDir, sprintf('%d_sph_est.wav', f-1));
+    estFile = fullfile(denoisedDir, sprintf('%06d_sph_est.wav', f-1));
     if ~exist(estFile, 'file'), continue; end
 
     clean = mean(audioread(fullfile(cleanDir, files(f).name)), 2);
