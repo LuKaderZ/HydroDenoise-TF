@@ -18,7 +18,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 TRAIN_DIR = os.path.join(PROJECT_ROOT, "data", "ShipsEar", "train")
 EXP_DIR   = os.path.join(PROJECT_ROOT, "experiments", "dprnn", "checkpoints")
 
-BATCH_SIZE = 4
+BATCH_SIZE = 2
 LEARNING_RATE = 1e-3
 EPOCHS = 100
 VAL_SPLIT = 0.1
