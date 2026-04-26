@@ -107,3 +107,9 @@ DPRNN操作类似上面
     python train_ablation.py --model model_ablation3 --train_dir ../data/ShipsEar/train --save_dir ../experiments/ablation/ablation3/checkpoints
 
     python test_ablation_batch.py
+
+## 步骤9：多层掩码权重验证：
+
+    python prepare_data_high.py
+
+    python prepare_data_low.py
