@@ -26,3 +26,9 @@ DeepShip/test
 填入表4-1：
   SI-SNRi = 6.27 dB
   SDRi    = 9.03 dB
+
+========== Conv-TasNet test1:===========
+  -15 dB: SI-SNRi=17.38, SDRi=-2.66 (n=574)
+  -10 dB: SI-SNRi=13.91, SDRi=-7.46 (n=574)
+  -5 dB: SI-SNRi=9.64, SDRi=-12.55 (n=574)
+表4-1: SI-SNRi=13.65, SDRi=-7.56
