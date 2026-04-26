@@ -25,7 +25,7 @@
     
     pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-    pip install tqdm numpy scipy matplotlib soundfile thop fast-bss-eval tensorboard h5py asteroid
+    pip install tqdm numpy scipy matplotlib soundfile thop fast-bss-eval tensorboard h5py asteroid requests
     
 对仓库进行克隆：
 
