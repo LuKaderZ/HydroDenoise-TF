@@ -317,7 +317,7 @@ def parse_args():
 
     parser.add_argument("--enc_channels", type=int, default=256)
     parser.add_argument("--ffn_hidden", type=int, default=512)
-    parser.add_argument("--n_blocks", type=int, default=6)
+    parser.add_argument("--n_blocks", type=int, default=10)
     parser.add_argument("--n_heads", type=int, default=8)
 
     parser.add_argument("--lr", type=float, default=5e-4, help="Initial learning rate")

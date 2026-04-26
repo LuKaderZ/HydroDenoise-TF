@@ -15,7 +15,7 @@ def parse_args():
     parser.add_argument("--enc_channels", type=int, default=256)
     parser.add_argument("--enc_kernel_size", type=int, default=80)
     parser.add_argument("--enc_stride", type=int, default=40)
-    parser.add_argument("--n_blocks", type=int, default=6)
+    parser.add_argument("--n_blocks", type=int, default=10)
     parser.add_argument("--n_heads", type=int, default=8)
     parser.add_argument("--ffn_hidden", type=int, default=512)
     parser.add_argument("--dw_kernel_size", type=int, default=31)
