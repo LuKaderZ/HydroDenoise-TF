@@ -237,8 +237,8 @@ def main(args):
             F.softmax(model.mask_fusion_weights, dim=0).detach().cpu().numpy()
         )
         if writer is not None:
-            for i, w in enumerate(fusion_weights):
-                writer.add_scalar(f"Weights/MaskFusion_layer_{i}", w, epoch)
+            weight_dict = {f'layer_{i}': w for i, w in enumerate(fusion_weights)}
+            writer.add_scalars('Weights/MaskFusion', weight_dict, epoch)
         logger.info(f"MaskFusion Weights (softmax): {fusion_weights.tolist()}")
         # ============================================
 
