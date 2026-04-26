@@ -113,3 +113,9 @@ DPRNN操作类似上面
     python prepare_data_high.py
 
     python prepare_data_low.py
+
+训练完毕后，将train.log重命名放入下面目录里
+experiments/mask_fusion_weights/
+├── train_avg.log    (平均SNR组)
+├── train_low.log    (低SNR组)
+└── train_high.log   (高SNR组)
