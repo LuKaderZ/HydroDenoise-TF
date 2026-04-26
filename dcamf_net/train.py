@@ -10,6 +10,7 @@ import logging
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
@@ -230,6 +231,16 @@ def main(args):
         history["train_sisnr"].append(train_res["sisnr"])
         history["val_sisnr"].append(val_res["sisnr"])
         save_plot(history, os.path.join(args.save_dir, "learning_curves.png"))
+
+        # ========== 记录多层掩码融合权重 ==========
+        fusion_weights = (
+            F.softmax(model.mask_fusion_weights, dim=0).detach().cpu().numpy()
+        )
+        if writer is not None:
+            for i, w in enumerate(fusion_weights):
+                writer.add_scalar(f"Weights/MaskFusion_layer_{i}", w, epoch)
+        logger.info(f"MaskFusion Weights (softmax): {fusion_weights.tolist()}")
+        # ============================================
 
         log_msg = (
             f"Epoch [{epoch + 1:03d}] | LR: {curr_lr:.2e} | "
