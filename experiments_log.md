@@ -17,3 +17,12 @@ DeepShip/test
    样本数: 800
    SISNR:  -7.9781 dB (SISNRi: 2.7568)
    SDR:    10.3294 dB (SDRi: 5.5650)
+
+========== CRN test1 指标 ==========
+  SNR ~-15 dB: SI-SNRi = 6.63 dB, SDRi = 13.34 dB (样本数: 574)
+  SNR ~-10 dB: SI-SNRi = 6.64 dB, SDRi = 9.22 dB (样本数: 574)
+  SNR ~-5 dB: SI-SNRi = 5.53 dB, SDRi = 4.53 dB (样本数: 574)
+
+填入表4-1：
+  SI-SNRi = 6.27 dB
+  SDRi    = 9.03 dB
