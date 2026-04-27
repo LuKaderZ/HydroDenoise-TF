@@ -40,10 +40,15 @@ DeepShip 整体指标：
   SDRi    = -10.34 dB
 
 ========== Conv-TasNet test1:===========
+Conv-TasNet test1:
   -15 dB: SI-SNRi=17.38, SDRi=-2.66 (n=574)
   -10 dB: SI-SNRi=13.91, SDRi=-7.46 (n=574)
   -5 dB: SI-SNRi=9.64, SDRi=-12.55 (n=574)
-表4-1: SI-SNRi=13.65, SDRi=-7.56
+表4-1 ShipsEar: SI-SNRi=13.65, SDRi=-7.56
+
+Conv-TasNet DeepShip 整体:
+  SI-SNRi=2.05, SDRi=-23.50 (n=800)
+表4-1 DeepShip: SI-SNRi=2.05, SDRi=-23.50
 
 ========== DPRNN test1: ================
   -15 dB: SI-SNRi=8.93, SDRi=15.35 (n=574)
