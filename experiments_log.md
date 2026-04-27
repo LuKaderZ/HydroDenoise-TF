@@ -32,3 +32,9 @@ DeepShip/test
   -10 dB: SI-SNRi=13.91, SDRi=-7.46 (n=574)
   -5 dB: SI-SNRi=9.64, SDRi=-12.55 (n=574)
 表4-1: SI-SNRi=13.65, SDRi=-7.56
+
+========== DPRNN test1: ================
+  -15 dB: SI-SNRi=8.93, SDRi=15.35 (n=574)
+  -10 dB: SI-SNRi=7.84, SDRi=11.54 (n=574)
+  -5 dB: SI-SNRi=6.23, SDRi=8.26 (n=574)
+表4-1: SI-SNRi=7.67, SDRi=11.72
