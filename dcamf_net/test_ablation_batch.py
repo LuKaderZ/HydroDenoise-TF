@@ -68,7 +68,7 @@ def load_model(module_name, checkpoint_path):
         enc_stride=40,
         chunk_size=500,
         hop_size=250,
-        n_blocks=6,
+        n_blocks=10,
         n_heads=8,
         ffn_hidden=512,
         dw_kernel_size=31,
