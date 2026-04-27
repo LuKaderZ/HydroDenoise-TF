@@ -51,10 +51,15 @@ Conv-TasNet DeepShip 整体:
 表4-1 DeepShip: SI-SNRi=2.05, SDRi=-23.50
 
 ========== DPRNN test1: ================
+DPRNN test1:
   -15 dB: SI-SNRi=8.93, SDRi=15.35 (n=574)
   -10 dB: SI-SNRi=7.84, SDRi=11.54 (n=574)
   -5 dB: SI-SNRi=6.23, SDRi=8.26 (n=574)
-表4-1: SI-SNRi=7.67, SDRi=11.72
+表4-1 ShipsEar: SI-SNRi=7.67, SDRi=11.72
+
+DPRNN DeepShip 整体:
+  SI-SNRi=0.30, SDRi=0.57 (n=800)
+表4-1 DeepShip: SI-SNRi=0.30, SDRi=0.57
 
 ========== 消融实验 ====================
 --- 移除全局支路 ---
