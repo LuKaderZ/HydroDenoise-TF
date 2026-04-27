@@ -38,3 +38,22 @@ DeepShip/test
   -10 dB: SI-SNRi=7.84, SDRi=11.54 (n=574)
   -5 dB: SI-SNRi=6.23, SDRi=8.26 (n=574)
 表4-1: SI-SNRi=7.67, SDRi=11.72
+
+========== 消融实验 ====================
+--- 移除全局支路 ---
+  -15 dB: SI-SNRi=-0.01, SDRi=-0.02 (n=574)
+  -10 dB: SI-SNRi=-0.01, SDRi=-0.02 (n=574)
+  -5 dB: SI-SNRi=-0.02, SDRi=-0.03 (n=574)
+表4-2: SI-SNR=-0.01, SDR=-0.02
+
+--- 移除局部支路 ---
+  -15 dB: SI-SNRi=1.65, SDRi=-17.05 (n=574)
+  -10 dB: SI-SNRi=1.44, SDRi=-18.26 (n=574)
+  -5 dB: SI-SNRi=1.12, SDRi=-19.60 (n=574)
+表4-2: SI-SNR=1.40, SDR=-18.30
+
+--- 移除卷积增强 ---
+  -15 dB: SI-SNRi=11.94, SDRi=15.84 (n=574)
+  -10 dB: SI-SNRi=10.53, SDRi=13.17 (n=574)
+  -5 dB: SI-SNRi=7.88, SDRi=9.71 (n=574)
+表4-2: SI-SNR=10.12, SDR=12.91
