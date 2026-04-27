@@ -1,3 +1,14 @@
+========== 指标汇总 ==========
+ShipsEar/test1            -15   14.97      17.96     
+ShipsEar/test1            -10   12.36      14.50     
+ShipsEar/test1            -5    9.06       10.60     
+ShipsEar/test2            -15   12.44      16.74     
+ShipsEar/test2            -10   9.73       12.95     
+ShipsEar/test2            -5    6.73       9.04      
+ShipsEar/test3            -15   -1.24      2.62      
+ShipsEar/test3            -10   -0.80      2.65      
+ShipsEar/test3            -5    -0.17      2.58  
+
 test1
    样本数: 1722
    SISNR:  2.1253 dB (SISNRi: 12.1285)
