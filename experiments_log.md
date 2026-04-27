@@ -18,14 +18,26 @@ DeepShip/test
    SISNR:  -7.9781 dB (SISNRi: 2.7568)
    SDR:    10.3294 dB (SDRi: 5.5650)
 
+========== 处理 ShipsEar test1 ==========
+
 ========== CRN test1 指标 ==========
   SNR ~-15 dB: SI-SNRi = 6.63 dB, SDRi = 13.34 dB (样本数: 574)
   SNR ~-10 dB: SI-SNRi = 6.64 dB, SDRi = 9.22 dB (样本数: 574)
   SNR ~-5 dB: SI-SNRi = 5.53 dB, SDRi = 4.53 dB (样本数: 574)
 
-填入表4-1：
+填入表4-1 (ShipsEar)：
   SI-SNRi = 6.27 dB
   SDRi    = 9.03 dB
+
+========== 处理 DeepShip ==========
+
+DeepShip 整体指标：
+  SI-SNRi = 2.09 dB
+  SDRi    = -10.34 dB
+
+填入表4-1 (DeepShip)：
+  SI-SNRi = 2.09 dB
+  SDRi    = -10.34 dB
 
 ========== Conv-TasNet test1:===========
   -15 dB: SI-SNRi=17.38, SDRi=-2.66 (n=574)

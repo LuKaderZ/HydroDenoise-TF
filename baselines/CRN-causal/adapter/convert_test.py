@@ -14,7 +14,10 @@ from tqdm import tqdm
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_DIR)))
 
-TEST_SETS = [("test1", os.path.join("data", "ShipsEar", "test1"))]
+TEST_SETS = [
+    ("test1", os.path.join("data", "ShipsEar", "test1")),
+    ("DeepShip", os.path.join("data", "DeepShip", "test")),
+]
 
 OUTPUT_BASE = os.path.join(
     PROJECT_ROOT, "baselines", "CRN-causal", "data", "datasets", "tt"
