@@ -1,4 +1,4 @@
-%% 图4-5：不同信噪比下多层掩码融合权重的分布对比
+%% 图4-4：不同信噪比下多层掩码融合权重的分布对比
 clear; clc; close all;
 
 % ==================== 字体与样式设置 (中文黑体) ====================
@@ -77,11 +77,11 @@ legend(groupNames, 'Location', 'northeast', 'FontSize', 10, 'Box', 'off');
 % ==================== 保存 ====================
 saveDir = fullfile(projectRoot, 'figures');
 if ~exist(saveDir, 'dir'), mkdir(saveDir); end
-pdfPath = fullfile(saveDir, 'fig4-5_fusion_weights_comparison.pdf');
-pngPath = fullfile(saveDir, 'fig4-5_fusion_weights_comparison.png');
+pdfPath = fullfile(saveDir, 'fig4-4_fusion_weights_comparison.pdf');
+pngPath = fullfile(saveDir, 'fig4-4_fusion_weights_comparison.png');
 exportgraphics(gcf, pdfPath, 'ContentType', 'vector');
 saveas(gcf, pngPath);
-fprintf('图4-5已保存至 %s\n', saveDir);
+fprintf('图4-4已保存至 %s\n', saveDir);
 
 % ==================== 辅助函数 ====================
 function w = extract_fusion_weights(logFilePath)
