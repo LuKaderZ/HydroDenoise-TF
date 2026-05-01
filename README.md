@@ -1,44 +1,52 @@
 # HydroDenoise-TF
 
-## 步骤1：[AutoDL](https://www.autodl.com/)租用实例
+基于双分支卷积增强注意力与多层掩码融合的端到端时域水声降噪网络（DCAMF-Net）。
 
-规格详情：
-- **GPU**：RTX 5090（32 GB）× 1
-- **镜像**：PyTorch 2.1.0 + Python 3.10（Ubuntu 22.04）+ CUDA 12.1
+- **框架**: PyTorch 2.1 + CUDA 12.1
+- **基线**: CRN / Conv-TasNet / DPRNN
+- **数据集**: ShipsEar / DeepShip
 
-启动实例后，在 **JupyterLab终端** 中执行后续步骤。
+---
 
-## 步骤2：配置环境，克隆仓库
+## 环境配置
 
-在**JupyterLab终端**执行下面语句加速GitHub访问：
+### 云端训练（AutoDL）
 
-    source /etc/network_turbo
+租用实例：RTX 5090（32 GB），镜像 `PyTorch 2.1.0 + Python 3.10（Ubuntu 22.04）+ CUDA 12.1`。
 
-创建conda环境：
+启动后在 JupyterLab 终端中执行：
 
-    conda create -n dcamf python=3.10 -y
-    conda init
+```bash
+# 加速 GitHub 访问
+source /etc/network_turbo
 
-执行完后重启终端，安装环境依赖：
+# 创建 conda 环境
+conda create -n dcamf python=3.10 -y
+conda init
+# 重启终端后继续
+conda activate dcamf
 
-    conda activate dcamf
-    
-    pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128 -i https://pypi.tuna.tsinghua.edu.cn/simple
+# 安装依赖
+pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128 -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install tqdm numpy scipy matplotlib soundfile thop fast-bss-eval tensorboard h5py asteroid requests
 
-    pip install tqdm numpy scipy matplotlib soundfile thop fast-bss-eval tensorboard h5py asteroid requests
-    
-对仓库进行克隆：
+# 克隆仓库
+cd /root/autodl-tmp
+git clone https://github.com/LuKaderZ/HydroDenoise-TF.git
+cd HydroDenoise-TF
+```
 
-    cd /root/autodl-tmp
+### 本地环境（推理与绘图）
 
-    git clone https://github.com/LuKaderZ/HydroDenoise-TF.git
+确保本地已安装 MATLAB（用于图形绘制）和 Python 环境，安装依赖同上（无需 CUDA 版本的 PyTorch）。
 
-    cd HydroDenoise-TF
+---
 
+## 数据准备
 
-## 步骤3：准备原始数据
+### 1. 下载数据集
 
-下载 **ShipsEar** 和 **DeepShip** 数据集，解压后按照以下结构放入raw_data/目录：
+下载 **ShipsEar** 和 **DeepShip** 数据集，按以下结构放入 `raw_data/`：
 
 ```
 raw_data/
@@ -56,66 +64,143 @@ raw_data/
     └── Tanker/
 ```
 
-## 步骤4：生成训练/测试数据
+### 2. 生成训练/测试数据
 
-    cd scripts
-    python prepare_data.py
+```bash
+cd scripts
+python prepare_data.py
+```
 
-## 步骤5：开始训练
+完成后 `data/` 目录下将包含训练集和各测试集的 noisy / clean 音频对。
 
-    cd ../dcamf_net
-    python train.py --train_dir ../data/ShipsEar/train --lr 5e-4 --save_dir ../experiments/dcamf_net/checkpoints --use_tensorboard
+---
 
-## 步骤6：本地推理与绘图
+## 训练 DCAMF-Net
 
-训练完成后，服务器上保存了最佳模型权重 `best_SISNR.pth`。后续推理和绘图在**本地**进行。
+```bash
+cd dcamf_net
+python train.py --train_dir ../data/ShipsEar/train --lr 5e-4 --save_dir ../experiments/dcamf_net/checkpoints --use_tensorboard
+```
 
-将以下文件从服务器下载到本地项目对应目录：
-- 服务器路径：`/root/autodl-tmp/HydroDenoise-TF/experiments/dcamf_net/checkpoints/best_SISNR.pth`
-- 本地路径：`experiments/dcamf_net/checkpoints/best_SISNR.pth`
+训练完成后最佳权重保存为 `experiments/dcamf_net/checkpoints/best_SISNR.pth`。
 
-在**本地**项目根目录下的 `dcamf_net/` 文件夹中执行：
+---
 
-    python test.py
+## 基线模型
 
-在 MATLAB 中打开并运行：
+### CRN
 
-    matlab/plot_dcamf_metrics.m
+基于 [CRN-causal](https://github.com/JupiterEthan/CRN-causal) 适配。仓库中已删除原 `.git` 目录，并对 `stft.py`（版本适配）和 `models.py`（`weights_only=False`）做了修改。
 
-## 步骤7：基线模型
+```bash
+# 1. 依次运行 adapter/ 下的三个数据适配脚本
+cd baselines/CRN-causal/scripts
 
-[CRN](https://github.com/JupiterEthan/CRN-causal)删除了`.git`文件夹，修改了`stft.py`文件进行版本适配,`models.py` 修改为`weights_only=False`以适配版本。
-
-依次执行`adapter`下的三个数据适配脚本。
-
-cd baselines\CRN-causal\scripts
-
+# 2. 训练
 python train.py --gpu_ids=0 --tr_list=../filelists/tr_list.txt --cv_file=../data/datasets/cv/cv.ex --ckpt_dir=exp --logging_period=5 --lr=0.0002 --time_log=./time.log --unit=utt --batch_size=16 --buffer_size=32 --max_n_epochs=150
 
+# 3. 推理
 python test.py --gpu_ids=0 --ckpt_dir=exp --model_file=exp/models/best.pt --tt_list=../filelists/tt_list.txt --est_path=../data/estimates
+```
 
-Conv‑TasNet
+### Conv-TasNet / DPRNN
 
-直接运行train.py文件
+使用 `asteroid` 库的 `ConvTasNet` 和 `DPRNNTasNet` 实现。直接运行对应目录下的 `train.py` 即可，超参数已在脚本中预设。
 
-DPRNN操作类似上面
+---
 
-## 步骤8：消融实验
-依次执行：
-    python train_ablation.py --model model_ablation1 --train_dir ../data/ShipsEar/train --save_dir ../experiments/ablation/ablation1/checkpoints
-    python train_ablation.py --model model_ablation2 --train_dir ../data/ShipsEar/train --save_dir ../experiments/ablation/ablation2/checkpoints
-    python train_ablation.py --model model_ablation3 --train_dir ../data/ShipsEar/train --save_dir ../experiments/ablation/ablation3/checkpoints
+## 消融实验
 
-    python test_ablation_batch.py
+三种消融变体分别移除了全局支路、局部支路和卷积增强子模块：
 
-## 步骤9：多层掩码权重验证：
+```bash
+python train_ablation.py --model model_ablation1 --train_dir ../data/ShipsEar/train --save_dir ../experiments/ablation/ablation1/checkpoints
+python train_ablation.py --model model_ablation2 --train_dir ../data/ShipsEar/train --save_dir ../experiments/ablation/ablation2/checkpoints
+python train_ablation.py --model model_ablation3 --train_dir ../data/ShipsEar/train --save_dir ../experiments/ablation/ablation3/checkpoints
+```
 
-    python prepare_data_high.py
+训练完成后批量测试：
 
-    python prepare_data_low.py
+```bash
+python test_ablation_batch.py
+```
 
-训练完毕后，将train.log重命名放入下面目录里
+---
+
+## 多层掩码融合权重验证
+
+使用不同 SNR 分布的训练数据分别训练模型，对比各层融合权重的收敛行为：
+
+```bash
+python prepare_data_high.py   # 高 SNR 组（[-5, 0] dB）
+python prepare_data_low.py    # 低 SNR 组（[-15, -10] dB）
+```
+
+训练完毕后，将各组的 `train.log` 重命名放入：
+
+```
 experiments/mask_fusion_weights/
-├── train_avg.log    (平均SNR组)
-├── train_low.log    (低SNR组)
-└── train_high.log   (高SNR组)
+├── train_avg.log     # 平均 SNR 组（三组等概率混合）
+├── train_low.log     # 低 SNR 组
+└── train_high.log    # 高 SNR 组
+```
+
+---
+
+## 推理与绘图
+
+### Python 推理
+
+将服务器上的最佳权重 `experiments/dcamf_net/checkpoints/best_SISNR.pth` 下载到本地对应路径，然后：
+
+```bash
+cd dcamf_net
+python test.py
+```
+
+### MATLAB 绘图
+
+在 MATLAB 中依次运行 `matlab/` 下的绘图脚本：
+
+| 脚本 | 生成图 | 内容 |
+|------|--------|------|
+| `plot_fig4_1.m` | 图 4.1 | 信号与噪声 PSD 概览 |
+| `plot_fig4_2.m` | 图 4.2 | 时域波形对比 |
+| `plot_fig4_3_overall_spectrum.m` | 图 4.3 | 总体频谱对比 |
+| `plot_fig4_4.m` | 图 4.4 | 关键线谱功率恢复 |
+| `plot_fig4_5.m` | 图 4.5 | 泛化性能评估 |
+| `plot_fig4_6.m` | 图 4.6 | 融合权重分布 |
+
+脚本会自动读取实验产物并保存图像至 `figures/` 目录。
+
+---
+
+## 项目结构
+
+```
+HydroDenoise-TF/
+├── dcamf_net/                  # DCAMF-Net 模型代码
+│   ├── model.py                #   网络结构定义
+│   ├── train.py                #   训练脚本
+│   ├── test.py                 #   推理评估脚本
+│   ├── dataset.py              #   数据加载
+│   ├── loss.py                 #   r-nSISNR 损失函数
+│   ├── config.py               #   评估工具 / 模型构建
+│   ├── model_ablation[1-3].py  #   消融变体
+│   ├── train_ablation.py       #   消融训练
+│   └── test_ablation_batch.py  #   消融测试
+├── baselines/                  # 基线模型
+│   ├── CRN-causal/
+│   ├── conv_tasnet/
+│   └── dprnn/
+├── scripts/                    # 数据准备
+│   ├── prepare_data.py
+│   ├── prepare_data_high.py
+│   └── prepare_data_low.py
+├── matlab/                     # 论文图表绘制
+├── figures/                    # 图表输出
+├── experiments/                # 训练产物（检查点、日志、降噪音频）
+├── raw_data/                   # 原始数据集
+├── data/                       # 处理后的训练/测试数据
+└── experiments_log.md          # 实验指标记录
+```
