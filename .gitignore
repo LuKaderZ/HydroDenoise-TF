@@ -215,3 +215,6 @@ filelists/
 experiments/
 figures/
 exp/
+
+# Word
+*.docx
