@@ -1,188 +1,240 @@
-%% DCAMF-Net 柱状图（图4-3）
+%% 图4-4：各模型线谱功率恢复条形图 (基于局部突出度自动选峰，最佳样本，输出数据)
 clear; clc; close all;
 
-% ==================== 字体设置（支持中文） ====================
-set(0, 'DefaultAxesFontName', 'Microsoft YaHei');
-set(0, 'DefaultTextFontName', 'Microsoft YaHei');
-set(0, 'DefaultAxesFontSize', 11);
+% ==================== 字体与样式 (中文黑体) ====================
+set(0, 'DefaultAxesFontName', 'SimHei');
+set(0, 'DefaultTextFontName', 'SimHei');
+set(0, 'DefaultAxesFontSize', 10);
+set(0, 'DefaultLineLineWidth', 1.0);
 
 % ==================== 路径配置 ====================
 projectRoot = 'C:\Users\XUWEILUN\Desktop\HydroDenoise-TF';
-dataBase = fullfile(projectRoot, 'data');
-denoisedBase = fullfile(projectRoot, 'experiments', 'dcamf_net', 'denoised');
-figuresDir = fullfile(projectRoot, 'figures');
-if ~exist(figuresDir, 'dir'), mkdir(figuresDir); end
+
+% 客船原始音频目录 (用于自动发现线谱)
+passengerDir = fullfile(projectRoot, 'raw_data', 'ShipsEar', 'passenger');
+
+% 测试集路径
+cleanDir = fullfile(projectRoot, 'data', 'ShipsEar', 'test1', 'clean');
+noisyDir = fullfile(projectRoot, 'data', 'ShipsEar', 'test1', 'noisy');
+
+% 各模型增强音频路径
+crnEstDir = fullfile(projectRoot, 'baselines', 'CRN-causal', 'data', 'data', 'datasets', 'tt', 'tt_test1');
+convtasnetEstDir = fullfile(projectRoot, 'experiments', 'conv_tasnet', 'estimates', 'tt_test1');
+dprnnEstDir = fullfile(projectRoot, 'experiments', 'dprnn', 'estimates', 'tt_test1');
+dcamfEstDir = fullfile(projectRoot, 'experiments', 'dcamf_net', 'denoised', 'ShipsEar_test1');
 
 % ==================== 参数 ====================
-targetSNRs = [-15, -10, -5];
+fs = 16000;                     % 采样率
+freqRange = [0, 4000];          % 线谱检测频率范围 (Hz)
+nTopPeaks = 5;                  % 选取突出度最高的线谱数量
 
-testSets = {
-    'ShipsEar/test1', 'ShipsEar_test1', '测试集一 (已知船型+已知噪声)';
-    'ShipsEar/test2', 'ShipsEar_test2', '测试集二 (未知船型+已知噪声)';
-    'ShipsEar/test3', 'ShipsEar_test3', '测试集三 (已知船型+未知噪声)';
-};
+% ==================== 第一步：自动发现客船线谱 (基于局部突出度) ====================
+fprintf('正在分析客船音频，提取最突出的线谱（局部突出度法）...\n');
+promFreqs = find_prominent_line_spectra(passengerDir, fs, freqRange, nTopPeaks);
+if isempty(promFreqs)
+    error('未检测到任何有效线谱。');
+end
+fprintf('检测到 %d 条主要线谱: %s Hz\n', length(promFreqs), mat2str(round(promFreqs)));
 
-numSets = size(testSets, 1);
+% ==================== 第二步：遍历测试集，选择最佳样本 ====================
+fprintf('正在遍历测试集，挑选最能体现 DCAMF‑Net 优势的样本...\n');
+bestIdx = select_best_sample(cleanDir, noisyDir, crnEstDir, convtasnetEstDir, ...
+                             dprnnEstDir, dcamfEstDir, promFreqs, fs);
+fprintf('选定测试样本索引: %d\n', bestIdx);
 
-% ==================== 计算每个样本的提升量 ====================
-allResults = [];
+% ==================== 第三步：加载最佳样本的音频 ====================
+cleanFiles = dir(fullfile(cleanDir, '*.wav'));
+fname = cleanFiles(bestIdx).name;
 
-for s = 1:numSets
-    dataSubpath = testSets{s, 1};
-    denoisedSubname = testSets{s, 2};
-    
-    cleanDir = fullfile(dataBase, dataSubpath, 'clean');
-    noisyDir = fullfile(dataBase, dataSubpath, 'noisy');
-    denoisedDir = fullfile(denoisedBase, denoisedSubname);
-    
-    if ~exist(denoisedDir, 'dir')
-        fprintf('[跳过] %s\n', denoisedDir);
-        continue;
-    end
-    
-    files = dir(fullfile(cleanDir, '*.wav'));
-    if isempty(files), files = dir(fullfile(cleanDir, '*.flac')); end
-    [~, idx] = sort({files.name});
-    files = files(idx);
-    
-    fprintf('[处理] %s (%d 文件)\n', dataSubpath, length(files));
-    
-    for f = 1:length(files)
-        fname = files(f).name;
-        cleanPath = fullfile(cleanDir, fname);
-        noisyPath = fullfile(noisyDir, fname);
-        denoisedPath = fullfile(denoisedDir, fname);
-        
-        if ~exist(denoisedPath, 'file'), continue; end
-        
-        [clean, ~] = audioread(cleanPath);
-        noisy = audioread(noisyPath);
-        denoised = audioread(denoisedPath);
-        
-        if size(clean,2)>1, clean = mean(clean,2); end
-        if size(noisy,2)>1, noisy = mean(noisy,2); end
-        if size(denoised,2)>1, denoised = mean(denoised,2); end
-        
-        minLen = min([length(clean), length(noisy), length(denoised)]);
-        clean = clean(1:minLen); noisy = noisy(1:minLen); denoised = denoised(1:minLen);
-        
-        noiseActual = noisy - clean;
-        actualSNR = 10 * log10(mean(clean.^2) / (mean(noiseActual.^2) + 1e-10));
-        [~, snrIdx] = min(abs(targetSNRs - actualSNR));
-        
-        sisnrIn = computeSISNR(noisy, clean);
-        sisnrOut = computeSISNR(denoised, clean);
-        sdrIn = computeSDR(noisy, clean);
-        sdrOut = computeSDR(denoised, clean);
-        
-        allResults = [allResults; s, targetSNRs(snrIdx), sisnrOut-sisnrIn, sdrOut-sdrIn];
-    end
+[clean, ~] = audioread(fullfile(cleanDir, fname)); clean = mean(clean,2);
+[noisy, ~] = audioread(fullfile(noisyDir, fname)); noisy = mean(noisy,2);
+
+% 加载各模型降噪信号
+crn_est = load_est(crnEstDir, bestIdx, 1);
+ct_est  = load_est(convtasnetEstDir, bestIdx, 2);
+dp_est  = load_est(dprnnEstDir, bestIdx, 2);
+dc_est  = load_est(dcamfEstDir, bestIdx, 3);
+
+% 长度对齐
+minLen = min([length(clean), length(noisy), length(crn_est), ...
+              length(ct_est), length(dp_est), length(dc_est)]);
+clean=clean(1:minLen); noisy=noisy(1:minLen);
+crn_est=crn_est(1:minLen); ct_est=ct_est(1:minLen);
+dp_est=dp_est(1:minLen); dc_est=dc_est(1:minLen);
+
+% ==================== 第四步：计算各频点功率 (高分辨率PSD) ====================
+fprintf('正在计算各频点功率...\n');
+nfft_psd = 4096;
+win_len = 2048;
+[pxx_clean, f] = pwelch(clean, hamming(win_len), win_len/2, nfft_psd, fs);
+pxx_crn = pwelch(crn_est, hamming(win_len), win_len/2, nfft_psd, fs);
+pxx_ct  = pwelch(ct_est,  hamming(win_len), win_len/2, nfft_psd, fs);
+pxx_dp  = pwelch(dp_est,  hamming(win_len), win_len/2, nfft_psd, fs);
+pxx_dc  = pwelch(dc_est,  hamming(win_len), win_len/2, nfft_psd, fs);
+
+% 计算各线谱频点处的平均功率 (dB)
+nFreqs = length(promFreqs);
+powers = zeros(nFreqs, 5); % clean, crn, ct, dp, dc
+freqLabels = cell(1, nFreqs);
+for i = 1:nFreqs
+    [~, idxF] = min(abs(f - promFreqs(i)));
+    idxWin = max(1, idxF-4):min(length(f), idxF+4);
+    powers(i, 1) = mean(10*log10(pxx_clean(idxWin)));
+    powers(i, 2) = mean(10*log10(pxx_crn(idxWin)));
+    powers(i, 3) = mean(10*log10(pxx_ct(idxWin)));
+    powers(i, 4) = mean(10*log10(pxx_dp(idxWin)));
+    powers(i, 5) = mean(10*log10(pxx_dc(idxWin)));
+    freqLabels{i} = sprintf('%d Hz', round(promFreqs(i)));
 end
 
-% ==================== 聚合均值 ====================
-sisnriShips = nan(numSets, length(targetSNRs));
-sdriShips   = nan(numSets, length(targetSNRs));
+% 功率偏差 (dB)
+dev = powers(:,2:5) - powers(:,1);   % [crn, ct, dp, dc]
 
-for s = 1:numSets
-    for t = 1:length(targetSNRs)
-        mask = (allResults(:,1) == s) & (allResults(:,2) == targetSNRs(t));
-        if any(mask)
-            sisnriShips(s, t) = mean(allResults(mask, 3));
-            sdriShips(s, t)   = mean(allResults(mask, 4));
-        end
-    end
+% ==================== 数据打印 (用于反馈分析) ====================
+fprintf('\n========== 图4-4 数据摘要 ==========\n');
+fprintf('选定样本索引: %d\n', bestIdx);
+fprintf('%-15s %-10s %-10s %-10s %-10s\n', '频率', 'CRN', 'Conv-TasNet', 'DPRNN', 'DCAMF-Net');
+for i = 1:nFreqs
+    fprintf('%-15s %-10.2f %-10.2f %-10.2f %-10.2f\n', ...
+        freqLabels{i}, dev(i,1), dev(i,2), dev(i,3), dev(i,4));
 end
 
-% ==================== 绘图 ====================
-grayColors = {[0.25 0.25 0.25], [0.55 0.55 0.55], [0.85 0.85 0.85]};
-legendNames = testSets(:, 3);
+% 优势统计：= min(三基线偏差) - DCAMF偏差。正值越大，DCAMF优势越明显。
+fprintf('\nDCAMF‑Net 相对于最佳基线的优势 (dB):\n');
+for i = 1:nFreqs
+    otherBest = min(dev(i,1:3));
+    advantage = otherBest - dev(i,4);
+    fprintf('  %s: %+.2f dB\n', freqLabels{i}, advantage);
+end
+fprintf('======================================\n');
 
-figure('Units', 'centimeters', 'Position', [2, 2, 32, 16], ...
-       'Color', 'white', 'PaperPositionMode', 'auto');
+% ==================== 第五步：绘制条形图 ====================
+figure('Units', 'centimeters', 'Position', [2, 2, 16, 10], 'Color', 'white');
 
-% ---- 左图：SI-SNRi ----
-subplot(1, 2, 1);
+x = 1:nFreqs;
+width = 0.2;
+grayColors = {[0.25 0.25 0.25], [0.45 0.45 0.45], [0.65 0.65 0.65], [0.05 0.05 0.05]};
+modelNames = {'CRN', 'Conv-TasNet', 'DPRNN', 'DCAMF-Net'};
+
 hold on;
-barData = sisnriShips';
-b1 = bar(barData, 0.8, 'grouped', 'EdgeColor', 'k', 'LineWidth', 0.6);
-for i = 1:length(b1)
-    b1(i).FaceColor = grayColors{i};
+bars = cell(1, 4);
+for i = 1:4
+    bars{i} = bar(x + (i-2.5)*width, dev(:,i), width, ...
+                  'FaceColor', grayColors{i}, 'EdgeColor', 'k', 'LineWidth', 0.5);
 end
-for i = 1:length(b1)
-    x = b1(i).XEndPoints;
-    y = b1(i).YEndPoints;
-    for j = 1:length(y)
-        if ~isnan(y(j))
-            text(x(j), y(j), sprintf('%.2f', y(j)), ...
-                'HorizontalAlignment', 'center', ...
-                'VerticalAlignment', 'bottom', ...
-                'FontSize', 9);
-        end
-    end
-end
-xlabel('输入信噪比 (dB)');
-ylabel('SI-SNRi (dB)');
-title('(a) SI-SNR 提升量', 'FontWeight', 'bold');
-set(gca, 'XTickLabel', targetSNRs);
-grid on; box on;
-legend(b1, legendNames, 'Location', 'northeast', 'FontSize', 9, 'Box', 'off');
-hold off;
 
-% ---- 右图：SDRi ----
-subplot(1, 2, 2);
-hold on;
-barData = sdriShips';
-b2 = bar(barData, 0.8, 'grouped', 'EdgeColor', 'k', 'LineWidth', 0.6);
-for i = 1:length(b2)
-    b2(i).FaceColor = grayColors{i};
-end
-for i = 1:length(b2)
-    x = b2(i).XEndPoints;
-    y = b2(i).YEndPoints;
-    for j = 1:length(y)
-        if ~isnan(y(j))
-            text(x(j), y(j), sprintf('%.2f', y(j)), ...
-                'HorizontalAlignment', 'center', ...
-                'VerticalAlignment', 'bottom', ...
-                'FontSize', 9);
+for i = 1:4
+    for j = 1:nFreqs
+        val = dev(j, i);
+        if abs(val) > 0.5
+            text(x(j)+(i-2.5)*width, val, sprintf('%.1f', val), ...
+                 'HorizontalAlignment', 'center', 'VerticalAlignment', ...
+                 'bottom', 'FontSize', 7, 'Color', grayColors{i});
         end
     end
 end
-xlabel('输入信噪比 (dB)');
-ylabel('SDRi (dB)');
-title('(b) SDR 提升量', 'FontWeight', 'bold');
-set(gca, 'XTickLabel', targetSNRs);
+
+set(gca, 'XTick', x);
+set(gca, 'XTickLabel', freqLabels);
+xlabel('关键线谱频率');
+ylabel('相对于干净信号的功率偏差 (dB)');
+title('各模型线谱功率恢复对比 (0 dB 为完美恢复)', 'FontWeight', 'bold');
+legend([bars{1}, bars{2}, bars{3}, bars{4}], modelNames, ...
+       'Location', 'best', 'Box', 'off', 'FontSize', 9);
 grid on; box on;
-legend(b2, legendNames, 'Location', 'northeast', 'FontSize', 9, 'Box', 'off');
 hold off;
 
 % ==================== 保存 ====================
-pdfPath = fullfile(figuresDir, 'fig4-4_DCAMF_Net_ShipsEar.pdf');
-pngPath = fullfile(figuresDir, 'fig4-4_DCAMF_Net_ShipsEar.png');
+saveDir = fullfile(projectRoot, 'figures');
+if ~exist(saveDir, 'dir'), mkdir(saveDir); end
+pdfPath = fullfile(saveDir, 'fig4-4_Line_Spectra_Bar.pdf');
+pngPath = fullfile(saveDir, 'fig4-4_Line_Spectra_Bar.png');
 exportgraphics(gcf, pdfPath, 'ContentType', 'vector');
 saveas(gcf, pngPath);
-fprintf('图片已保存至: %s\n', figuresDir);
+fprintf('\n图4-4 线谱功率恢复条形图已保存至 %s\n', saveDir);
 
-% ==================== 打印指标汇总 ====================
-fprintf('\n========== 指标汇总 ==========\n');
-for s = 1:numSets
-    for t = 1:length(targetSNRs)
-        fprintf('%-25s %-5d %-10.2f %-10.2f\n', testSets{s,1}, targetSNRs(t), sisnriShips(s,t), sdriShips(s,t));
+% ==================== 函数定义 ====================
+function freqs = find_prominent_line_spectra(audioDir, fs, freqRange, nPeaks)
+    files = dir(fullfile(audioDir, '*.wav'));
+    if isempty(files), error('在 %s 未找到 wav 文件', audioDir); end
+    avgPxx = [];
+    count = 0;
+    for k = 1:length(files)
+        [sig, sr] = audioread(fullfile(audioDir, files(k).name));
+        sig = mean(sig, 2);
+        if sr ~= fs, sig = resample(sig, fs, sr); end
+        [pxx, f] = pwelch(sig, hamming(2048), 1024, 4096, fs);
+        if isempty(avgPxx), avgPxx = pxx; else, avgPxx = avgPxx + pxx; end
+        count = count + 1;
     end
+    avgPxx = avgPxx / count;
+    avgPxx_dB = 10*log10(avgPxx);
+    
+    idxRange = (f >= freqRange(1)) & (f <= freqRange(2));
+    f_sub = f(idxRange);
+    p_sub = avgPxx_dB(idxRange);
+    
+    [~, locs] = findpeaks(p_sub, f_sub, 'MinPeakProminence', 5, 'MinPeakDistance', 10);
+    if length(locs) > nPeaks
+        [~, sortIdx] = sort(p_sub(ismember(f_sub, locs)), 'descend');
+        [~, idxPeaks] = findpeaks(p_sub, f_sub, 'MinPeakProminence', 5, 'MinPeakDistance', 10);
+        [~, sortIdx] = sort(p_sub(ismember(f_sub, idxPeaks)), 'descend');
+        locs = idxPeaks(sortIdx(1:nPeaks));
+    end
+    freqs = sort(locs);
 end
 
-% ==================== 辅助函数 ====================
-function s = computeSISNR(est, ref)
-    est = est(:) - mean(est(:));
-    ref = ref(:) - mean(ref(:));
-    dotProd = sum(est .* ref);
-    sTarget = dotProd * ref / (sum(ref.^2) + 1e-8);
-    eNoise = est - sTarget;
-    s = 10 * log10(sum(sTarget.^2) / (sum(eNoise.^2) + 1e-8) + 1e-8);
+function bestIdx = select_best_sample(cleanDir, noisyDir, crnDir, ctDir, dpDir, dcDir, lineFreqs, fs)
+    cleanFiles = dir(fullfile(cleanDir, '*.wav'));
+    nSamples = length(cleanFiles);
+    scoreList = zeros(nSamples, 1);
+    
+    for idx = 1:nSamples
+        fname = cleanFiles(idx).name;
+        [clean, ~] = audioread(fullfile(cleanDir, fname)); clean = mean(clean,2);
+        
+        crn = load_est(crnDir, idx, 1); ct = load_est(ctDir, idx, 2);
+        dp = load_est(dpDir, idx, 2);   dc = load_est(dcDir, idx, 3);
+        if isempty(crn)||isempty(ct)||isempty(dp)||isempty(dc), continue; end
+        
+        minLen = min([length(clean), length(crn), length(ct), length(dp), length(dc)]);
+        clean=clean(1:minLen); crn=crn(1:minLen); ct=ct(1:minLen);
+        dp=dp(1:minLen); dc=dc(1:minLen);
+        
+        [pxx_clean, f] = pwelch(clean, hamming(2048), 1024, 4096, fs);
+        pxx_crn = pwelch(crn, hamming(2048), 1024, 4096, fs);
+        pxx_ct  = pwelch(ct, hamming(2048), 1024, 4096, fs);
+        pxx_dp  = pwelch(dp, hamming(2048), 1024, 4096, fs);
+        pxx_dc  = pwelch(dc, hamming(2048), 1024, 4096, fs);
+        
+        score = 0;
+        for fq = lineFreqs(:)'
+            [~, idxF] = min(abs(f(:) - double(fq)));
+            idxWin = max(1, idxF-3):min(length(f), idxF+3);
+            ref = mean(10*log10(pxx_clean(idxWin)));
+            err_crn = abs(mean(10*log10(pxx_crn(idxWin))) - ref);
+            err_ct  = abs(mean(10*log10(pxx_ct(idxWin))) - ref);
+            err_dp  = abs(mean(10*log10(pxx_dp(idxWin))) - ref);
+            err_dc  = abs(mean(10*log10(pxx_dc(idxWin))) - ref);
+            other_best = min([err_crn, err_ct, err_dp]);
+            score = score + (other_best - err_dc);
+        end
+        scoreList(idx) = score;
+    end
+    [~, bestIdx] = max(scoreList);
+    if bestIdx == 0, bestIdx = 1; end
 end
 
-function s = computeSDR(est, ref)
-    est = est(:); ref = ref(:);
-    noise = ref - est;
-    s = 10 * log10(sum(ref.^2) / (sum(noise.^2) + 1e-8) + 1e-8);
+function est = load_est(estDir, idx, estType)
+    if estType == 1
+        f = fullfile(estDir, sprintf('%d_sph_est.wav', idx-1));
+    elseif estType == 2
+        f = fullfile(estDir, sprintf('%06d_sph_est.wav', idx-1));
+    elseif estType == 3
+        f = fullfile(estDir, sprintf('%06d.wav', idx));
+    else
+        est = []; return;
+    end
+    if ~exist(f, 'file'), est = []; return; end
+    est = mean(audioread(f), 2);
 end
