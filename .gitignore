@@ -218,3 +218,6 @@ exp/
 
 # Word
 *.docx
+
+# Claude temp files
+.claude/tmp/
