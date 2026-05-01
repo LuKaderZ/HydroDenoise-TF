@@ -1,15 +1,17 @@
-# HydroDenoise-TF — DCAMF-Net: Underwater Acoustic Denoising with Dual-Branch Convolutional Enhanced Attention and Multi-Layer Mask Fusion
+# HydroDenoise-TF — DCAMF-Net：基于双分支卷积增强注意力与多层掩码融合的水声降噪网络
 
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1-EE4C2C?logo=pytorch)](https://pytorch.org/)
 [![Python](https://img.shields.io/badge/Python-3.10-3776AB?logo=python)](https://www.python.org/)
 [![CUDA](https://img.shields.io/badge/CUDA-12.1-76B900?logo=nvidia)](https://developer.nvidia.com/cuda-toolkit)
 [![License](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
 
-An end-to-end **time-domain underwater acoustic denoising neural network** that bridges deep learning with classical signal processing. DCAMF-Net achieves state-of-the-art signal fidelity (SDRi 12.84 dB) on the ShipsEar and DeepShip underwater acoustic datasets, outperforming Conv-TasNet, DPRNN, and CRN baselines.
+一种将深度学习与经典信号处理原理对应的端到端**时域水声降噪网络**。DCAMF-Net 在 ShipsEar 和 DeepShip 水声数据集上取得了最优的信号保真度（SDRi 12.84 dB），优于 Conv-TasNet、DPRNN、CRN 等基线模型。
 
-**Keywords**: underwater acoustic denoising, deep learning, time-domain speech enhancement, dual-branch self-attention, multi-layer mask fusion, overcomplete basis decomposition, wavelet shrinkage, Conv-TasNet, DPRNN, ShipsEar, DeepShip, PyTorch
+**English version**: [README_EN.md](./README_EN.md)
 
-**水下声信号降噪** | **水声去噪** | **深度学习** | **端到端时域降噪** | **双分支自注意力** | **多层掩码融合** | **船舶辐射噪声** | **神经网络降噪**
+**关键词**：水声降噪、深度学习、端到端时域去噪、双分支自注意力、多层掩码融合、过完备基分解、小波收缩、Conv-TasNet、DPRNN、ShipsEar、DeepShip、PyTorch
+
+**水下声信号降噪** | **水声去噪** | **船舶辐射噪声** | **神经网络降噪** | **注意力机制** | **掩码估计**
 
 ---
 
