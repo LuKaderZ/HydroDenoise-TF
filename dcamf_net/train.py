@@ -213,6 +213,11 @@ def main(args):
         writer = SummaryWriter(log_dir=log_dir)
         logger.info(f"TensorBoard logging enabled. Logs will be saved to: {log_dir}")
 
+        # Log model graph for TensorBoard visualization
+        dummy_input = torch.randn(1, 1, 48000).to(device)
+        writer.add_graph(model, dummy_input)
+        logger.info("Model graph logged to TensorBoard.")
+
     history = {"train_loss": [], "val_loss": [], "train_sisnr": [], "val_sisnr": []}
     best_val_loss = float("inf")
     best_val_sisnr = float("-inf")
