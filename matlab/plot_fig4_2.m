@@ -23,7 +23,7 @@ fs = 16000;
 analysisWin = 0.05;         % 分析窗长度 (秒) —— 最佳瞬态展示窗
 displayTime = [0, 0.05];    % 显示整个分析窗
 
-% ==================== 第一步：遍历全样本，截取瞬态最强段计算SI‑SNRi ====================
+% ==================== 第一步：遍历全样本，截取瞬态最强段计算 SI‑SNRi ====================
 fprintf('正在遍历测试集，截取瞬态段计算 SI‑SNRi...\n');
 cleanFiles = dir(fullfile(cleanDir, '*.wav'));
 nSamples = length(cleanFiles);
@@ -79,6 +79,24 @@ for k = 1:nSamples
     end
 end
 fprintf('选定最佳样本索引: %d (瞬态段 DCAMF‑Net SI‑SNRi = %.2f dB)\n', bestIdx, bestSIi);
+
+% ==================== 新增：输出整个样本的传统 SNR ====================
+fname_best = cleanFiles(bestIdx).name;
+clean_full = mean(audioread(fullfile(cleanDir, fname_best)), 2);
+noisy_full = mean(audioread(fullfile(noisyDir, fname_best)), 2);
+dcamf_full = mean(audioread(fullfile(dcamfEstDir, sprintf('%06d.wav', bestIdx))), 2);
+
+% 对齐长度（整个样本）
+minLen_full = min([length(clean_full), length(noisy_full), length(dcamf_full)]);
+clean_full = clean_full(1:minLen_full);
+noisy_full = noisy_full(1:minLen_full);
+dcamf_full = dcamf_full(1:minLen_full);
+
+% 计算传统 SNR（单位为 dB）
+input_snr = compute_snr(noisy_full, clean_full);      % 带噪信号的 SNR
+output_snr = compute_snr(dcamf_full, clean_full);    % DCAMF-Net 降噪后的 SNR
+fprintf('该整个样本：带噪信号 SNR = %.2f dB，DCAMF-Net 降噪后 SNR = %.2f dB，提升量 = %.2f dB\n', ...
+    input_snr, output_snr, output_snr - input_snr);
 
 % ==================== 第二步：加载最佳样本的全部信号 ====================
 sampleIdx = bestIdx;
@@ -179,10 +197,21 @@ function est = load_est(estDir, idx, estType)
 end
 
 function si = compute_sisnr(est, ref)
+    % 用于瞬态窗内选择样本的 SI-SNR 计算（保持原功能不变）
     est = est(:) - mean(est(:));
     ref = ref(:) - mean(ref(:));
     dot_prod = sum(est .* ref);
     s_target = dot_prod * ref / (sum(ref.^2) + 1e-8);
     e_noise = est - s_target;
     si = 10 * log10(sum(s_target.^2) / (sum(e_noise.^2) + 1e-8) + 1e-8);
+end
+
+function snr = compute_snr(est, ref)
+    % 计算传统 SNR (单位 dB)
+    % 输入: est 为带噪信号或降噪后信号, ref 为干净信号
+    % 噪声 = est - ref
+    noise = est(:) - ref(:);
+    signal_power = sum(ref(:).^2);
+    noise_power = sum(noise.^2);
+    snr = 10 * log10(signal_power / (noise_power + 1e-8));
 end
