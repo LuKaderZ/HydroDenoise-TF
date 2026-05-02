@@ -121,7 +121,7 @@ yMin = floor(min(allPSD) / 10) * 10;
 yMax = ceil(max(allPSD) / 10) * 10;
 
 % ==================== 第七步：绘图 (纯黑白、2x2子图) ====================
-figure('Units', 'centimeters', 'Position', [2, 2, 22, 16], 'Color', 'white');
+figure('Units', 'centimeters', 'Position', [2, 2, 40, 25], 'Color', 'white');
 
 models = {
     'CRN',              psd_crn, [0.85 0.33 0.10];
