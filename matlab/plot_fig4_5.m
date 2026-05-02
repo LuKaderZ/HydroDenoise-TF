@@ -128,7 +128,7 @@ grid on; box on;
 legend(b1, legendNames, 'Location', 'northeast', 'FontSize', 9, 'Box', 'off');
 
 allY1 = sisnriShips(:);
-ylim([min(0, min(allY1)*1.1), max(allY1)*1.15]);
+ylim([floor(min(allY1)) - 1, ceil(max(allY1)) + 1]);
 hold off;
 
 % ---- 右图：SDRi ----
@@ -159,7 +159,7 @@ grid on; box on;
 legend(b2, legendNames, 'Location', 'northeast', 'FontSize', 9, 'Box', 'off');
 
 allY2 = sdriShips(:);
-ylim([min(allY2)*1.15, max(allY2)*1.15]);
+ylim([0, ceil(max(allY2)) + 1]);
 hold off;
 
 % ==================== 保存 ====================
