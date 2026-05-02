@@ -44,16 +44,18 @@ ABLATION = {
     'No Conv Enhance': PROJECT_ROOT/'experiments/ablation/ablation3/denoised',
 }
 
-print('=' * 60)
-print('  UNIFIED EVALUATION REPORT')
-print('=' * 60)
+lines = []
+def o(text=''): lines.append(text); print(text)
+o('=' * 60)
+o('  UNIFIED EVALUATION REPORT')
+o('=' * 60)
 
 # ---- Main models ----
 for model_name, datasets in MODELS.items():
-    print(f'\n--- {model_name} ---')
+    o(f'\n--- {model_name} ---')
     for ds_name, (est_dir, clean_dir, noisy_dir, naming) in datasets.items():
         if not Path(est_dir).exists():
-            print(f'  {ds_name}: SKIP (estimates not found)')
+            o(f'  {ds_name}: SKIP (estimates not found)')
             continue
         cfiles = sorted(Path(clean_dir).glob('*.wav'))
         all_sii, all_sdi = [], []
@@ -79,13 +81,13 @@ for model_name, datasets in MODELS.items():
 
         if all_sii:
             sii, sdi = np.mean(all_sii), np.mean(all_sdi)
-            print(f'  {ds_name:12s}: SI-SNRi = {sii:7.2f} dB, SDRi = {sdi:7.2f} dB  (n={len(all_sii)})')
+            o(f'  {ds_name:12s}: SI-SNRi = {sii:7.2f} dB, SDRi = {sdi:7.2f} dB  (n={len(all_sii)})')
 
 # ---- Ablation ----
-print('\n--- Ablation (ShipsEar test1) ---')
+o(); o('--- Ablation (ShipsEar test1) ---')
 for name, est_dir in ABLATION.items():
     if not Path(est_dir).exists():
-        print(f'  {name}: SKIP')
+        o(f'  {name}: SKIP')
         continue
     cfiles = sorted(DATA_T1_CLEAN.glob('*.wav'))
     all_sii, all_sdi = [], []
@@ -101,8 +103,14 @@ for name, est_dir in ABLATION.items():
         all_sdi.append(compute_sdr(enhanced, clean) - compute_sdr(noisy, clean))
     if all_sii:
         sii, sdi = np.mean(all_sii), np.mean(all_sdi)
-        print(f'  {name:25s}: SI-SNRi = {sii:7.2f} dB, SDRi = {sdi:7.2f} dB  (n={len(all_sii)})')
+        o(f'  {name:25s}: SI-SNRi = {sii:7.2f} dB, SDRi = {sdi:7.2f} dB  (n={len(all_sii)})')
 
-print('\n' + '=' * 60)
-print('  Done. Copy values above to experiments_log.md / Table 4.1 & 4.2')
-print('=' * 60)
+o()
+o('=' * 60)
+o('  Done. Results saved to experiments.txt')
+o('=' * 60)
+
+out_path = PROJECT_ROOT / 'experiments.txt'
+with open(out_path, 'w', encoding='utf-8') as f:
+    f.write('\n'.join(lines) + '\n')
+print(f'Wrote {len(lines)} lines to {out_path}')
