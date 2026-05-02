@@ -128,9 +128,12 @@ dp_win      = dp_est(startSample:endSample);  dc_win      = dc_est(startSample:e
 t_win = (0:length(clean_win)-1)' / fs;
 t_disp = t_win * 1000;  % ms
 
-clean_disp = clean_win;   noisy_disp = noisy_win;
-crn_disp   = crn_win;     ct_disp    = ct_win;
-dp_disp    = dp_win;      dc_disp    = dc_win;
+clean_disp = smoothdata(clean_win, 'gaussian', 3);
+noisy_disp = smoothdata(noisy_win, 'gaussian', 3);
+crn_disp   = smoothdata(crn_win, 'gaussian', 3);
+ct_disp    = smoothdata(ct_win, 'gaussian', 3);
+dp_disp    = smoothdata(dp_win, 'gaussian', 3);
+dc_disp    = smoothdata(dc_win, 'gaussian', 3);
 
 % ==================== 第四步：绘图（带噪独立纵轴，其他统一） ====================
 figure('Units', 'centimeters', 'Position', [2, 2, 22, 16], 'Color', 'white');
@@ -160,7 +163,7 @@ for i = 1:6
     hold on;
     plot(t_disp, subPlots{i,2}, 'Color', subPlots{i,3}, 'LineWidth', 0.8);
     if i ~= 1
-        plot(t_disp, clean_disp, 'k:', 'LineWidth', 0.5);
+        plot(t_disp, clean_disp, 'k-', 'LineWidth', 0.4);
     end
     xlabel('时间 (ms)');
     ylabel('幅度');
