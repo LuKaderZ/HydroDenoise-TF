@@ -91,13 +91,23 @@ for i = 1:6, allPxx = [allPxx; 10*log10(specs{i}(idxF,:)+1e-10)]; end
 cMin = floor(min(allPxx(:))/5)*5;
 cMax = ceil(max(allPxx(:))/5)*5;
 
+% ==================== 自定义 Plasma 色图 ====================
+plasma_stops = [0.05 0.03 0.53;  0.46 0.01 0.65;  0.74 0.12 0.59;
+                0.95 0.34 0.43;  1.00 0.64 0.25;  0.94 0.97 0.06;
+                0.68 0.87 0.00;  0.26 0.63 0.00;  0.00 0.41 0.11;
+                0.00 0.25 0.34;  0.00 0.12 0.53;  0.00 0.00 0.70;
+                0.13 0.00 0.84;  0.53 0.00 0.94;  0.94 0.00 0.82;
+                1.00 0.22 0.72;  1.00 0.48 0.53;  1.00 0.85 0.18];
+plasma_map = interp1(linspace(0,1,size(plasma_stops,1)), plasma_stops, ...
+                     linspace(0,1,256), 'pchip');
+
 % ==================== 绘图 ====================
 figure('Units', 'centimeters', 'Position', [2, 2, 24, 18], 'Color', 'white');
 
 for i = 1:6
     subplot(3, 2, i);
     imagesc(T, F_plot/1000, 10*log10(specs{i}(idxF,:)+1e-10));
-    axis xy; colormap(jet); caxis([cMin, cMax]);
+    axis xy; colormap(gca, plasma_map); shading interp; clim([cMin, cMax]);
     xlabel('时间 (s)'); ylabel('频率 (kHz)');
     title(titles{i}, 'FontWeight', 'bold');
     colorbar('Location', 'eastoutside', 'FontSize', 7);

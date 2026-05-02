@@ -172,7 +172,7 @@ python test.py
 
 ### MATLAB Figures
 
-Run the plotting scripts under `matlab/`. For thesis figures (Chinese):
+Run the plotting scripts under `scripts/`. For thesis figures (Chinese):
 
 | Script | Figure | Content |
 |--------|--------|---------|
@@ -186,7 +186,7 @@ Run the plotting scripts under `matlab/`. For thesis figures (Chinese):
 For IEEE journal paper figures (English, color):
 
 ```matlab
-run('matlab/plot_ieee_figures.m');
+run('scripts/plot_ieee_figures.m');
 ```
 
 Outputs are saved to `figures/` and `figures/ieee/` respectively.
@@ -215,7 +215,7 @@ HydroDenoise-TF/
 │   ├── prepare_data.py
 │   ├── prepare_data_high.py
 │   └── prepare_data_low.py
-├── matlab/                     # Figure generation (MATLAB)
+├── scripts/                     # Figure generation (MATLAB)
 ├── figures/                    # Generated figures
 │   └── ieee/                   #   IEEE journal figures
 ├── experiments/                # Checkpoints, logs, denoised audio

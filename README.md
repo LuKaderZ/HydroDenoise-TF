@@ -174,7 +174,7 @@ python test.py
 
 ### MATLAB 绘图
 
-在 MATLAB 中依次运行 `matlab/` 下的绘图脚本：
+在 MATLAB 中依次运行 `scripts/` 下的绘图脚本：
 
 | 脚本 | 生成图 | 内容 |
 |------|--------|------|
@@ -211,7 +211,7 @@ HydroDenoise-TF/
 │   ├── prepare_data.py
 │   ├── prepare_data_high.py
 │   └── prepare_data_low.py
-├── matlab/                     # 论文图表绘制
+├── scripts/                     # 论文图表绘制
 ├── figures/                    # 图表输出
 ├── experiments/                # 训练产物（检查点、日志、降噪音频）
 ├── raw_data/                   # 原始数据集

@@ -8,7 +8,7 @@ set(0, 'DefaultAxesFontSize', 11);
 set(0, 'DefaultLineLineWidth', 1.0);
 
 % ==================== 路径配置 ====================
-% 脚本所在目录: matlab/，向上一级到 HydroDenoise-TF/
+% 脚本所在目录: scripts/，向上一级到 HydroDenoise-TF/
 scriptDir = fileparts(mfilename('fullpath'));
 projectRoot = fullfile(scriptDir, '..');   % 根据您的实际存放位置调整
 
