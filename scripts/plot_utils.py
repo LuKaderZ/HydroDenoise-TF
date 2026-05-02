@@ -8,7 +8,7 @@ from scipy.signal import welch, find_peaks
 def setup_style():
     """论文统一风格：字号适中，PDF矢量输出保证插入Word后清晰可读。
 
-    论文全文列宽约 15 cm，每张图 figsize 宽度设为此值或其比例，
+    论文 A4 页边距左2.5右2.0cm，正文宽约 16.5 cm (6.5 in)，每张图宽设为此值，
     保存时 bbox_inches='tight' 自动裁白边，插图时缩放到列宽即可。
     """
     plt.rcParams.update({
