@@ -54,9 +54,9 @@ model_colors = {
 }
 # Unified y-axis for non-noisy signals
 other_signals = np.concatenate([signals[k] for k in ['干净信号','CRN','Conv-TasNet','DPRNN','DCAMF-Net']])
-y_other = (other_signals.min() - 0.05*other_signals.ptp(), other_signals.max() + 0.05*other_signals.ptp())
-y_noisy = (signals['带噪信号'].min() - 0.05*signals['带噪信号'].ptp(),
-           signals['带噪信号'].max() + 0.05*signals['带噪信号'].ptp())
+y_other = (other_signals.min() - 0.05*np.ptp(other_signals), other_signals.max() + 0.05*np.ptp(other_signals))
+y_noisy = (signals['带噪信号'].min() - 0.05*np.ptp(signals['带噪信号']),
+           signals['带噪信号'].max() + 0.05*np.ptp(signals['带噪信号']))
 
 for ax, (label, sig) in zip(axes.flat, signals.items()):
     ax.plot(t_ms, sig, color=model_colors[label], linewidth=0.8)
