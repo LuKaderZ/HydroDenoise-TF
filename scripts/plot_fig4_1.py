@@ -35,8 +35,15 @@ def mix(clean, noise, snr_db):
     alpha = np.sqrt(P_s / (P_n * 10**(snr_db/10)))
     return clean + alpha * noise
 
-noise_p = nsig[np.random.randint(0, max(1, len(nsig)-len(psig))):][:len(psig)]
-noise_r = nsig[np.random.randint(0, max(1, len(nsig)-len(rsig))):][:len(rsig)]
+def prepare_noise(noise, target_len):
+    if len(noise) < target_len:
+        rep = int(np.ceil(target_len / len(noise)))
+        noise = np.tile(noise, rep)
+    start = np.random.randint(0, len(noise) - target_len + 1)
+    return noise[start:start + target_len]
+
+noise_p = prepare_noise(nsig, len(psig))
+noise_r = prepare_noise(nsig, len(rsig))
 mix_p = mix(psig, noise_p, -15); mix_r = mix(rsig, noise_r, -15)
 _, pxx_mp = welch(mix_p, FS, nperseg=1024, noverlap=512, nfft=1024)
 _, pxx_mr = welch(mix_r, FS, nperseg=1024, noverlap=512, nfft=1024)
