@@ -103,7 +103,7 @@ def find_line_spectra(audio_dir=RAW_PASSENGER, n_peaks=5, freq_range=(0, 4000)):
     pxx_db = 10 * np.log10(avg_pxx[mask] + 1e-10)
     f_sub = f[mask]
 
-    peaks, props = find_peaks(pxx_db, prominence=5, distance=10)
+    peaks, props = find_peaks(pxx_db, prominence=5, distance=3)  # ~12 Hz, close to MATLAB's 10 Hz
     if len(peaks) > n_peaks:
         top = np.argsort(props['prominences'])[-n_peaks:]
         peaks = peaks[top]
