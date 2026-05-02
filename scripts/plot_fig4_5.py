@@ -3,8 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from plot_utils import *
 
-plt.rcParams['font.sans-serif'] = ['SimHei']
-plt.rcParams['axes.unicode_minus'] = False
+setup_style()
 
 # ---- Detect line spectra + select best sample ----
 line_freqs = find_line_spectra(n_peaks=5)

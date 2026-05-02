@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 from plot_utils import *
 from scipy.signal import welch
 
-plt.rcParams['font.sans-serif'] = ['SimHei']
-plt.rcParams['axes.unicode_minus'] = False
+setup_style()
 
 # ---- Compute average PSDs ----
 def avg_psd(folder):

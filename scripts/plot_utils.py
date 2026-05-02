@@ -1,8 +1,25 @@
 """Shared utilities for all plot scripts."""
 import numpy as np
 import soundfile as sf
+import matplotlib.pyplot as plt
 from pathlib import Path
 from scipy.signal import welch, find_peaks
+
+def setup_style():
+    """Unified font & style for all thesis figures."""
+    plt.rcParams.update({
+        'font.sans-serif': ['SimHei'],
+        'font.size': 9,
+        'axes.titlesize': 10,
+        'axes.labelsize': 9,
+        'xtick.labelsize': 8,
+        'ytick.labelsize': 8,
+        'legend.fontsize': 8,
+        'figure.dpi': 300,
+        'savefig.dpi': 300,
+        'savefig.bbox': 'tight',
+        'axes.unicode_minus': False,
+    })
 
 PROJECT_ROOT = Path(r'C:\Users\XUWEILUN\Desktop\HydroDenoise-TF')
 FS = 16000

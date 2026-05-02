@@ -2,8 +2,7 @@
 import matplotlib.pyplot as plt
 from plot_utils import *
 
-plt.rcParams['font.sans-serif'] = ['SimHei']
-plt.rcParams['axes.unicode_minus'] = False
+setup_style()
 
 groups = {'平均SNR': 'train_avg.log', '低SNR': 'train_low.log', '高SNR': 'train_high.log'}
 bar_colors = [COLORS['ConvTasNet'], COLORS['CRN'], COLORS['DCAMF']]  # blue, orange, maroon

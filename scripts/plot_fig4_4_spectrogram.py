@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from scipy.signal import spectrogram
 
-plt.rcParams['font.sans-serif'] = ['SimHei']
-plt.rcParams['axes.unicode_minus'] = False
+from plot_utils import setup_style
+setup_style()
 
 project_root = Path(r'C:\Users\XUWEILUN\Desktop\HydroDenoise-TF')
 

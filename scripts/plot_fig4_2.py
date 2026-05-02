@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter1d
 from plot_utils import *
 
-plt.rcParams['font.sans-serif'] = ['SimHei']
-plt.rcParams['axes.unicode_minus'] = False
+setup_style()
 
 # ---- Select best sample ----
 print('Selecting best sample...')
