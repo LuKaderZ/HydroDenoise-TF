@@ -59,8 +59,8 @@ for i in range(4):
 
 ax.axhline(0, color='black', linewidth=0.8)
 ax.set_xticks(x); ax.set_xticklabels(freq_labels)
-ax.set_xlabel('Key Line Frequency'); ax.set_ylabel('Power Deviation from Clean (dB)')
-ax.set_title('Line Spectrum Power Recovery (0 dB = Perfect)', fontweight='bold')
+ax.set_xlabel('关键线谱频率'); ax.set_ylabel('相对于干净信号的功率偏差 (dB)')
+ax.set_title('各模型线谱功率恢复对比 (0 dB 为完美恢复)', fontweight='bold')
 ax.legend(fontsize=9); ax.grid(axis='y', alpha=0.3)
 
 dev_vals = dev.ravel()

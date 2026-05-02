@@ -57,23 +57,23 @@ y_margin = 0.05 * (all_dB.max() - all_dB.min())
 
 fig, axes = plt.subplots(1, 4, figsize=(18, 4.5))
 panels = [
-    (axes[0], psd(pxx_passenger), '(a) Passenger PSD', COLORS['ConvTasNet']),
-    (axes[1], psd(pxx_roro), '(b) RoRo PSD', '#77AC30'),
-    (axes[2], psd(pxx_noise), '(c) Background Noise PSD', COLORS['noisy']),
+    (axes[0], psd(pxx_passenger), '(a) 客船 PSD', COLORS['ConvTasNet']),
+    (axes[1], psd(pxx_roro), '(b) 滚装船 PSD', '#77AC30'),
+    (axes[2], psd(pxx_noise), '(c) 背景噪声 PSD', COLORS['noisy']),
 ]
 for ax, data, title, color in panels:
     ax.plot(f_plot/1000, data[mask], color=color, linewidth=1.0)
-    ax.set_xlabel('Frequency (kHz)'); ax.set_ylabel('PSD (dB/Hz)')
+    ax.set_xlabel('频率 (Hz)'); ax.set_ylabel('PSD (dB/Hz)')
     ax.set_title(title, fontweight='bold')
     ax.set_xlim(0, 4); ax.grid(True)
     ax.set_ylim(all_dB.min() - y_margin, all_dB.max() + y_margin)
 
 # Mixed PSD
 ax = axes[3]
-ax.plot(f_plot/1000, psd(pxx_mp)[mask], color=COLORS['ConvTasNet'], linewidth=1.0, label='Passenger mix')
-ax.plot(f_plot/1000, psd(pxx_mr)[mask], color='#77AC30', linewidth=1.0, label='RoRo mix')
-ax.set_xlabel('Frequency (kHz)'); ax.set_ylabel('PSD (dB/Hz)')
-ax.set_title('(d) Mixed Signal PSD (-15 dB)', fontweight='bold')
+ax.plot(f_plot/1000, psd(pxx_mp)[mask], color=COLORS['ConvTasNet'], linewidth=1.0, label='客船混合')
+ax.plot(f_plot/1000, psd(pxx_mr)[mask], color='#77AC30', linewidth=1.0, label='滚装船混合')
+ax.set_xlabel('频率 (Hz)'); ax.set_ylabel('PSD (dB/Hz)')
+ax.set_title('(d) 混合信号 PSD (-15 dB)', fontweight='bold')
 ax.set_xlim(0, 4); ax.legend(fontsize=8); ax.grid(True)
 ax.set_ylim(all_dB.min() - y_margin, all_dB.max() + y_margin)
 

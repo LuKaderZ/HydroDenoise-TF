@@ -60,9 +60,9 @@ for ax, (name, pxx, color) in zip(axes.flat, models):
     ax.plot(f_khz, pxx[mask], '--', color=color, linewidth=1.2, label=name)
     for fq in line_freqs:
         ax.axvline(fq/1000, color='gray', linestyle=':', linewidth=0.4)
-    ax.set_xlabel('Frequency (kHz)'); ax.set_ylabel('PSD (dB/Hz)')
+    ax.set_xlabel('频率 (kHz)'); ax.set_ylabel('PSD (dB/Hz)')
     ax.set_title(name, fontweight='bold'); ax.set_xlim(0, 4); ax.set_ylim(y_min, y_max)
-    ax.legend(fontsize=8); ax.grid(True, alpha=0.3)
+    ax.legend(['带噪信号', '干净信号', '降噪后'], fontsize=8); ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
 fig.savefig(FIG_DIR / 'fig4-3_overall_spectrum_comparison.pdf', dpi=300, bbox_inches='tight')

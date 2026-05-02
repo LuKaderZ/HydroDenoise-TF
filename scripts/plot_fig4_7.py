@@ -5,7 +5,7 @@ from plot_utils import *
 plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 
-groups = {'Average SNR': 'train_avg.log', 'Low SNR': 'train_low.log', 'High SNR': 'train_high.log'}
+groups = {'平均SNR': 'train_avg.log', '低SNR': 'train_low.log', '高SNR': 'train_high.log'}
 bar_colors = [COLORS['ConvTasNet'], COLORS['CRN'], COLORS['DCAMF']]  # blue, orange, maroon
 
 fig, ax = plt.subplots(figsize=(8, 5.5))
@@ -31,9 +31,9 @@ for i, (name, fname) in enumerate(groups.items()):
 
 ax.set_yticks(y + h)
 ax.set_yticklabels([str(i) for i in range(1, 11)])
-ax.set_xlabel('Fusion Weight (softmax)')
-ax.set_ylabel('DCAM Block Layer')
-ax.set_title('Multi-Layer Mask Fusion Weights under Different SNR Conditions', fontweight='bold')
+ax.set_xlabel('融合权重 (softmax)')
+ax.set_ylabel('DCAM模块层数')
+ax.set_title('不同信噪比下多层掩码融合权重分布', fontweight='bold')
 ax.legend(fontsize=9)
 ax.grid(axis='x', alpha=0.3)
 ax.set_xlim(0, max([extract_fusion_weights(FUSION_LOG_DIR / f) for f in groups.values()

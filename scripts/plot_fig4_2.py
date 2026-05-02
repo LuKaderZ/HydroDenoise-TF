@@ -33,12 +33,12 @@ start = np.argmax(energies) * win_len
 end = start + win_len
 
 signals = {
-    'Clean':          clean[start:end],
-    'Noisy':          noisy[start:end],
-    'CRN':            crn[start:end],
-    'Conv-TasNet':    ct[start:end],
-    'DPRNN':          dp[start:end],
-    'DCAMF-Net':      dc[start:end],
+    '干净信号':      clean[start:end],
+    '带噪信号':      noisy[start:end],
+    'CRN':           crn[start:end],
+    'Conv-TasNet':   ct[start:end],
+    'DPRNN':         dp[start:end],
+    'DCAMF-Net':     dc[start:end],
 }
 # Gaussian smooth
 for k in signals: signals[k] = gaussian_filter1d(signals[k], sigma=1.0)
@@ -48,21 +48,21 @@ t_ms = np.arange(win_len) / FS * 1000
 # ---- Plot ----
 fig, axes = plt.subplots(3, 2, figsize=(14, 10))
 model_colors = {
-    'Clean': COLORS['clean'], 'Noisy': COLORS['noisy'],
+    '干净信号': COLORS['clean'], '带噪信号': COLORS['noisy'],
     'CRN': COLORS['CRN'], 'Conv-TasNet': COLORS['ConvTasNet'],
     'DPRNN': COLORS['DPRNN'], 'DCAMF-Net': COLORS['DCAMF'],
 }
 # Unified y-axis for non-noisy signals
-other_signals = np.concatenate([signals[k] for k in ['Clean','CRN','Conv-TasNet','DPRNN','DCAMF-Net']])
+other_signals = np.concatenate([signals[k] for k in ['干净信号','CRN','Conv-TasNet','DPRNN','DCAMF-Net']])
 y_other = (other_signals.min() - 0.05*other_signals.ptp(), other_signals.max() + 0.05*other_signals.ptp())
-y_noisy = (signals['Noisy'].min() - 0.05*signals['Noisy'].ptp(),
-           signals['Noisy'].max() + 0.05*signals['Noisy'].ptp())
+y_noisy = (signals['带噪信号'].min() - 0.05*signals['带噪信号'].ptp(),
+           signals['带噪信号'].max() + 0.05*signals['带噪信号'].ptp())
 
 for ax, (label, sig) in zip(axes.flat, signals.items()):
     ax.plot(t_ms, sig, color=model_colors[label], linewidth=0.8)
-    if label != 'Clean':
-        ax.plot(t_ms, signals['Clean'], 'k-', linewidth=0.4, alpha=0.5)
-    ax.set_xlabel('Time (ms)'); ax.set_ylabel('Amplitude')
+    if label != '干净信号':
+        ax.plot(t_ms, signals['干净信号'], 'k-', linewidth=0.4, alpha=0.5)
+    ax.set_xlabel('时间 (ms)'); ax.set_ylabel('幅度')
     ax.set_title(label, fontweight='bold')
     ax.set_xlim(t_ms[0], t_ms[-1])
     ax.set_ylim(y_noisy if label == 'Noisy' else y_other)

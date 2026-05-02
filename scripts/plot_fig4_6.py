@@ -12,7 +12,7 @@ test_sets = {
     'test2': (DATA_T2_CLEAN, DATA_T2_NOISY, DC_DIR_T2),
     'test3': (DATA_T3_CLEAN, DATA_T3_NOISY, DC_DIR_T3),
 }
-names = ['Test-1 (已知船型+已知噪声)', 'Test-2 (未知船型+已知噪声)', 'Test-3 (已知船型+未知噪声)']
+names = ['测试集一 (已知船型+已知噪声)', '测试集二 (未知船型+已知噪声)', '测试集三 (已知船型+未知噪声)']
 
 # ---- Compute SI-SNRi/SDRi per sample per test set ----
 all_results = []
@@ -49,8 +49,8 @@ bar_colors = [COLORS['ConvTasNet'], COLORS['CRN'], '#7E2F8E']  # blue, orange, p
 fig, axes = plt.subplots(1, 2, figsize=(14, 5.5))
 
 for ax, data, ylabel, title in [
-    (axes[0], sisnri, 'SI-SNRi (dB)', '(a) SI-SNR Improvement'),
-    (axes[1], sdri,   'SDRi (dB)',   '(b) SDR Improvement'),
+    (axes[0], sisnri, 'SI-SNRi (dB)', '(a) SI-SNR 提升量'),
+    (axes[1], sdri,   'SDRi (dB)',   '(b) SDR 提升量'),
 ]:
     x = np.arange(3)
     w = 0.25
@@ -63,7 +63,7 @@ for ax, data, ylabel, title in [
 
     ax.set_xticks(x + w)
     ax.set_xticklabels([f'{s} dB' for s in target_snrs])
-    ax.set_xlabel('Input SNR'); ax.set_ylabel(ylabel)
+    ax.set_xlabel('输入信噪比 (dB)'); ax.set_ylabel(ylabel)
     ax.set_title(title, fontweight='bold')
     ax.legend(fontsize=8); ax.grid(axis='y', alpha=0.3)
 
