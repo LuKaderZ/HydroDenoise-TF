@@ -213,10 +213,13 @@ def main(args):
         writer = SummaryWriter(log_dir=log_dir)
         logger.info(f"TensorBoard logging enabled. Logs will be saved to: {log_dir}")
 
-        # Log model graph for TensorBoard visualization
-        dummy_input = torch.randn(1, 1, 48000).to(device)
-        writer.add_graph(model, dummy_input)
-        logger.info("Model graph logged to TensorBoard.")
+        # Log model structure via torchinfo (more reliable than add_graph)
+        try:
+            from torchinfo import summary
+            model_stats = summary(model, input_size=(1, 1, 48000), verbose=0)
+            logger.info(f"Model stats:\n{str(model_stats)}")
+        except Exception as e:
+            logger.warning(f"torchinfo summary failed: {e}")
 
     history = {"train_loss": [], "val_loss": [], "train_sisnr": [], "val_sisnr": []}
     best_val_loss = float("inf")
