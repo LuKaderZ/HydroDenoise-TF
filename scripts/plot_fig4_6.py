@@ -66,7 +66,7 @@ for ax, data, ylabel, title in [
     ax.set_xticklabels([f'{s} dB' for s in target_snrs])
     ax.set_xlabel('输入信噪比 (dB)'); ax.set_ylabel(ylabel)
     ax.set_title(title, fontweight='bold')
-    ax.legend(fontsize=8); ax.grid(axis='y', alpha=0.3)
+    ax.legend(loc='upper right', fontsize=8); ax.grid(axis='y', alpha=0.3)
 
     all_vals = data[~np.isnan(data)]
     if len(all_vals) > 0:
