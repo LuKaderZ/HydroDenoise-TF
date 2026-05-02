@@ -94,7 +94,7 @@ for s = 1:numSets
 end
 
 % ==================== 绘图 ====================
-grayColors = {[0.00 0.45 0.74], [0.93 0.69 0.13], [0.49 0.18 0.56]};
+grayColors = {[0.00 0.45 0.74], [0.93 0.69 0.13], [0.30 0.75 0.93]};
 legendNames = testSets(:, 3);
 
 figure('Units', 'centimeters', 'Position', [2, 2, 32, 16], ...
