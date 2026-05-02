@@ -116,7 +116,7 @@ for i = 1:length(b1)
             text(x(j), y(j), sprintf('%.2f', y(j)), ...
                 'HorizontalAlignment', 'center', ...
                 'VerticalAlignment', 'bottom', ...
-                'FontSize', 9);
+                'FontSize', 9, 'Color', 'k');
         end
     end
 end
@@ -126,6 +126,9 @@ title('(a) SI-SNR 提升量', 'FontWeight', 'bold');
 set(gca, 'XTickLabel', targetSNRs);
 grid on; box on;
 legend(b1, legendNames, 'Location', 'northeast', 'FontSize', 9, 'Box', 'off');
+
+allY1 = sisnriShips(:);
+ylim([min(0, min(allY1)*1.1), max(allY1)*1.15]);
 hold off;
 
 % ---- 右图：SDRi ----
@@ -144,7 +147,7 @@ for i = 1:length(b2)
             text(x(j), y(j), sprintf('%.2f', y(j)), ...
                 'HorizontalAlignment', 'center', ...
                 'VerticalAlignment', 'bottom', ...
-                'FontSize', 9);
+                'FontSize', 9, 'Color', 'k');
         end
     end
 end
@@ -154,6 +157,9 @@ title('(b) SDR 提升量', 'FontWeight', 'bold');
 set(gca, 'XTickLabel', targetSNRs);
 grid on; box on;
 legend(b2, legendNames, 'Location', 'northeast', 'FontSize', 9, 'Box', 'off');
+
+allY2 = sdriShips(:);
+ylim([min(allY2)*1.15, max(allY2)*1.15]);
 hold off;
 
 % ==================== 保存 ====================
