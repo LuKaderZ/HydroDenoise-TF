@@ -55,11 +55,11 @@ all_dB = np.concatenate([psd(pxx_passenger)[mask], psd(pxx_roro)[mask],
                           psd(pxx_noise)[mask], psd(pxx_mp)[mask], psd(pxx_mr)[mask]])
 y_margin = 0.05 * (all_dB.max() - all_dB.min())
 
-fig, axes = plt.subplots(1, 4, figsize=(18, 4.5))
+fig, axes = plt.subplots(2, 2, figsize=(12, 9))
 panels = [
-    (axes[0], psd(pxx_passenger), '(a) 客船 PSD', COLORS['ConvTasNet']),
-    (axes[1], psd(pxx_roro), '(b) 滚装船 PSD', '#77AC30'),
-    (axes[2], psd(pxx_noise), '(c) 背景噪声 PSD', COLORS['noisy']),
+    (axes[0,0], psd(pxx_passenger), '(a) 客船 PSD', COLORS['ConvTasNet']),
+    (axes[0,1], psd(pxx_roro), '(b) 滚装船 PSD', '#77AC30'),
+    (axes[1,0], psd(pxx_noise), '(c) 背景噪声 PSD', COLORS['noisy']),
 ]
 for ax, data, title, color in panels:
     ax.plot(f_plot/1000, data[mask], color=color, linewidth=1.0)
@@ -68,8 +68,8 @@ for ax, data, title, color in panels:
     ax.set_xlim(0, 4); ax.grid(True)
     ax.set_ylim(all_dB.min() - y_margin, all_dB.max() + y_margin)
 
-# Mixed PSD
-ax = axes[3]
+# Mixed PSD (bottom-right)
+ax = axes[1,1]
 ax.plot(f_plot/1000, psd(pxx_mp)[mask], color=COLORS['ConvTasNet'], linewidth=1.0, label='客船混合')
 ax.plot(f_plot/1000, psd(pxx_mr)[mask], color='#77AC30', linewidth=1.0, label='滚装船混合')
 ax.set_xlabel('频率 (Hz)'); ax.set_ylabel('PSD (dB/Hz)')
