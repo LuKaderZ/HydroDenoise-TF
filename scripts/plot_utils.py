@@ -76,12 +76,10 @@ def compute_sisnr(est, ref):
     return 10 * np.log10(np.sum(target**2) / (np.sum(noise**2) + 1e-8) + 1e-8)
 
 def compute_sdr(est, ref):
-    """Exact copy of config._compute_sdr — uses fast_bss_eval identically."""
-    import torch
-    from fast_bss_eval import sdr as fast_bss_sdr
-    est_t = torch.from_numpy(est).unsqueeze(0).float()
-    ref_t = torch.from_numpy(ref).unsqueeze(0).float()
-    return float(fast_bss_sdr(ref_t, est_t).item())
+    """原版MATLAB公式: SDR = 10*log10(||ref||^2 / ||ref-est||^2)"""
+    est = est.reshape(-1); ref = ref.reshape(-1)
+    noise = ref - est
+    return 10 * np.log10(np.sum(ref**2) / (np.sum(noise**2) + 1e-8) + 1e-8)
 
 def psd_db(sig, nperseg=1024, noverlap=None):
     if noverlap is None: noverlap = nperseg // 2
