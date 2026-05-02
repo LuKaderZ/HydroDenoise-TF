@@ -1,0 +1,29 @@
+============================================================
+  UNIFIED EVALUATION REPORT
+============================================================
+
+--- CRN ---
+  ShipsEar    : SI-SNRi =    6.27 dB, SDRi =    9.03 dB  (n=1722)
+  DeepShip    : SI-SNRi =    2.09 dB, SDRi =  -10.34 dB  (n=800)
+
+--- Conv-TasNet ---
+  ShipsEar    : SI-SNRi =   13.65 dB, SDRi =   -7.56 dB  (n=1722)
+  DeepShip    : SI-SNRi =    2.05 dB, SDRi =  -23.50 dB  (n=800)
+
+--- DPRNN ---
+  ShipsEar    : SI-SNRi =    7.67 dB, SDRi =   11.72 dB  (n=1722)
+  DeepShip    : SI-SNRi =    0.30 dB, SDRi =    0.57 dB  (n=800)
+
+--- DCAMF-Net ---
+  ShipsEar    : SI-SNRi =   12.13 dB, SDRi =   14.35 dB  (n=1722)
+  DeepShip    : SI-SNRi =    2.76 dB, SDRi =    4.96 dB  (n=800)
+
+--- Ablation (ShipsEar test1) ---
+  Full DCAMF-Net           : SI-SNRi =   12.13 dB, SDRi =   14.35 dB  (n=1722)
+  No Global Branch         : SI-SNRi =   -0.01 dB, SDRi =   -0.02 dB  (n=1722)
+  No Local Branch          : SI-SNRi =    1.40 dB, SDRi =  -18.30 dB  (n=1722)
+  No Conv Enhance          : SI-SNRi =   10.12 dB, SDRi =   12.91 dB  (n=1722)
+
+============================================================
+  Done. Copy values above to experiments_log.md / Table 4.1 & 4.2
+============================================================
