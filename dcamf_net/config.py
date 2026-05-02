@@ -6,7 +6,10 @@ import random
 from tqdm import tqdm
 from thop import profile, clever_format
 from fast_bss_eval import sdr as fast_bss_sdr
-from model import DCAMFNet
+try:
+    from model import DCAMFNet
+except ImportError:
+    from dcamf_net.model import DCAMFNet
 
 
 def set_seed(seed=42):

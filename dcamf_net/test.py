@@ -1,6 +1,9 @@
 import argparse
 import torch
-from config import set_seed, build_model, print_complexity, run_evaluation
+try:
+    from config import set_seed, build_model, print_complexity, run_evaluation
+except ImportError:
+    from dcamf_net.config import set_seed, build_model, print_complexity, run_evaluation
 
 
 def parse_args():

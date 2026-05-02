@@ -23,9 +23,14 @@ except (ImportError, ModuleNotFoundError):
     thop = None
     profile = None
 
-from model import DCAMFNet
-from dataset import AudioDenoisingDataset
-from loss import RnSISNR, sisnr
+try:
+    from model import DCAMFNet
+    from dataset import AudioDenoisingDataset
+    from loss import RnSISNR, sisnr
+except ImportError:
+    from dcamf_net.model import DCAMFNet
+    from dcamf_net.dataset import AudioDenoisingDataset
+    from dcamf_net.loss import RnSISNR, sisnr
 
 
 def set_seed(seed):

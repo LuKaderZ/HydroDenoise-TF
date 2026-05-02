@@ -17,8 +17,12 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 
-from dataset import AudioDenoisingDataset
-from loss import RnSISNR, sisnr
+try:
+    from dataset import AudioDenoisingDataset
+    from loss import RnSISNR, sisnr
+except ImportError:
+    from dcamf_net.dataset import AudioDenoisingDataset
+    from dcamf_net.loss import RnSISNR, sisnr
 
 
 def set_seed(seed=42):
