@@ -52,7 +52,7 @@ models = [
     ('DCAMF-Net',   p_dc,  COLORS['DCAMF']),
 ]
 
-fig, axes = plt.subplots(2, 2, figsize=(6, 5.5))
+fig, axes = plt.subplots(2, 2, figsize=(6.5, 6))
 for ax, (name, pxx, color) in zip(axes.flat, models):
     ax.plot(f_khz, p_noisy[mask], color=COLORS['noisy'], linewidth=0.5, alpha=0.6, label='Noisy')
     ax.plot(f_khz, p_clean[mask], 'k-', linewidth=1.5, label='Clean')

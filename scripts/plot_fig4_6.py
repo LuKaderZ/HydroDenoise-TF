@@ -45,7 +45,7 @@ for s in range(3):
 bar_colors = [COLORS['ConvTasNet'], COLORS['CRN'], '#7E2F8E']  # blue, orange, purple
 
 # ---- Plot ----
-fig, axes = plt.subplots(1, 2, figsize=(6, 3.2))
+fig, axes = plt.subplots(1, 2, figsize=(6.5, 3.5))
 
 for ax, data, ylabel, title in [
     (axes[0], sisnri, 'SI-SNRi (dB)', '(a) SI-SNR 提升量'),

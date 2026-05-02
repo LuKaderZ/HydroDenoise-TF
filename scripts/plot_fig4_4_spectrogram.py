@@ -84,7 +84,7 @@ vmax = np.ceil(max(np.concatenate([p.ravel() for p in all_psd])) / 5) * 5
 f_plot = f[f <= freq_lim] / 1000
 
 # ------- 绘图 -------
-fig, axes = plt.subplots(3, 2, figsize=(6, 7))
+fig, axes = plt.subplots(3, 2, figsize=(6.5, 7.5))
 for i, ax in enumerate(axes.flat):
     im = ax.pcolormesh(t, f_plot, all_psd[i], shading='auto', cmap='plasma',
                         vmin=vmin, vmax=vmax)

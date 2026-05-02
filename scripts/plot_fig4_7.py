@@ -7,7 +7,7 @@ setup_style()
 groups = {'平均SNR': 'train_avg.log', '低SNR': 'train_low.log', '高SNR': 'train_high.log'}
 bar_colors = [COLORS['ConvTasNet'], COLORS['CRN'], COLORS['DCAMF']]  # blue, orange, maroon
 
-fig, ax = plt.subplots(figsize=(6, 4.5))
+fig, ax = plt.subplots(figsize=(6.5, 5))
 y = np.arange(1, 11)
 h = 0.25
 

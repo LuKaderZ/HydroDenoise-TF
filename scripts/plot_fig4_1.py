@@ -54,7 +54,7 @@ all_dB = np.concatenate([psd(pxx_passenger)[mask], psd(pxx_roro)[mask],
                           psd(pxx_noise)[mask], psd(pxx_mp)[mask], psd(pxx_mr)[mask]])
 y_margin = 0.05 * (all_dB.max() - all_dB.min())
 
-fig, axes = plt.subplots(2, 2, figsize=(6, 5.5))
+fig, axes = plt.subplots(2, 2, figsize=(6.5, 6))
 panels = [
     (axes[0,0], psd(pxx_passenger), '(a) 客船 PSD', COLORS['ConvTasNet']),
     (axes[0,1], psd(pxx_roro), '(b) 滚装船 PSD', '#77AC30'),
