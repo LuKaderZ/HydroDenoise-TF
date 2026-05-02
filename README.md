@@ -42,7 +42,7 @@ conda activate dcamf
 
 # 安装依赖
 pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128 -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install tqdm numpy scipy matplotlib soundfile thop fast-bss-eval tensorboard h5py asteroid requests
+pip install tqdm numpy scipy matplotlib soundfile thop fast-bss-eval tensorboard h5py asteroid requests torchinfo
 
 # 克隆仓库
 cd /root/autodl-tmp
