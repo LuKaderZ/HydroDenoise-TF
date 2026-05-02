@@ -80,7 +80,6 @@ for model_name, datasets in MODELS.items():
         if all_sii:
             sii, sdi = np.mean(all_sii), np.mean(all_sdi)
             print(f'  {ds_name:12s}: SI-SNRi = {sii:7.2f} dB, SDRi = {sdi:7.2f} dB  (n={len(all_sii)})')
-    print(f'  >> Copy: SI-SNRi={sii:.2f} / SDRi={sdi:.2f}')
 
 # ---- Ablation ----
 print('\n--- Ablation (ShipsEar test1) ---')
