@@ -59,11 +59,11 @@ box on;
 
 % 柱端数值标签（仅当权重大于0.01时显示）
 for i = 1:length(b)
-    xEnds = b(i).YEndPoints;
-    yEnds = b(i).XEndPoints;
-    for j = 1:length(yEnds)
-        if yEnds(j) > 0.01
-            text(yEnds(j), xEnds(j), sprintf('%.2f', yEnds(j)), ...
+    v = b(i).XEndPoints;   % bar values (weights)
+    y = b(i).YEndPoints;   % bar positions (layers)
+    for j = 1:length(v)
+        if v(j) > 0.01
+            text(v(j) + 0.01, y(j), sprintf('%.2f', v(j)), ...
                 'HorizontalAlignment', 'left', ...
                 'VerticalAlignment', 'middle', ...
                 'FontSize', 8, 'Color', 'k');
