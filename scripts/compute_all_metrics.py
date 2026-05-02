@@ -58,7 +58,7 @@ for model_name, datasets in MODELS.items():
 
         for idx, cf in enumerate(cfiles):
             try:
-                enhanced = load_est(est_dir, idx + 1 if est_type == 3 else idx + 1, est_type)
+                enhanced = load_est(est_dir, idx + 1, est_type)
             except FileNotFoundError:
                 continue
             clean = load_wav(cf)

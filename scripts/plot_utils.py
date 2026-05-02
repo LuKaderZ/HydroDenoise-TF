@@ -76,10 +76,11 @@ def compute_sisnr(est, ref):
     return 10 * np.log10(np.sum(target**2) / (np.sum(noise**2) + 1e-8) + 1e-8)
 
 def compute_sdr(est, ref):
-    from fast_bss_eval import sdr as fast_bss_sdr
+    """Exact copy of config._compute_sdr — uses fast_bss_eval identically."""
     import torch
-    est_t = torch.from_numpy(est.reshape(1, -1)).float()
-    ref_t = torch.from_numpy(ref.reshape(1, -1)).float()
+    from fast_bss_eval import sdr as fast_bss_sdr
+    est_t = torch.from_numpy(est).unsqueeze(0).float()
+    ref_t = torch.from_numpy(ref).unsqueeze(0).float()
     return float(fast_bss_sdr(ref_t, est_t).item())
 
 def psd_db(sig, nperseg=1024, noverlap=None):
