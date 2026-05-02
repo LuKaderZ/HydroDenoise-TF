@@ -124,10 +124,10 @@ yMax = ceil(max(allPSD) / 10) * 10;
 figure('Units', 'centimeters', 'Position', [2, 2, 22, 16], 'Color', 'white');
 
 models = {
-    'CRN',              psd_crn;
-    'Conv-TasNet',      psd_ct;
-    'DPRNN',            psd_dp;
-    'DCAMF-Net',        psd_dc;
+    'CRN',              psd_crn, [0.85 0.33 0.10];
+    'Conv-TasNet',      psd_ct,  [0.00 0.45 0.74];
+    'DPRNN',            psd_dp,  [0.93 0.69 0.13];
+    'DCAMF-Net',        psd_dc,  [0.64 0.08 0.18];
 };
 
 for i = 1:4
@@ -141,7 +141,7 @@ for i = 1:4
     plot(f_plot, psd_clean, 'k-', 'LineWidth', 1.5);
 
     % 模型降噪输出 (粗黑虚线)
-    plot(f_plot, models{i,2}, 'k--', 'LineWidth', 1.5);
+    plot(f_plot, models{i,2}, '--', 'Color', models{i,3}, 'LineWidth', 1.5);
 
     % 标注关键线谱位置
     for j = 1:length(promFreqs)

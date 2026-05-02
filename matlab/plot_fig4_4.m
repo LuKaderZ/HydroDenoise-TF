@@ -113,7 +113,7 @@ figure('Units', 'centimeters', 'Position', [2, 2, 16, 10], 'Color', 'white');
 
 x = 1:nFreqs;
 width = 0.2;
-grayColors = {[0.25 0.25 0.25], [0.45 0.45 0.45], [0.65 0.65 0.65], [0.05 0.05 0.05]};
+grayColors = {[0.85 0.33 0.10], [0.00 0.45 0.74], [0.93 0.69 0.13], [0.64 0.08 0.18]};
 modelNames = {'CRN', 'Conv-TasNet', 'DPRNN', 'DCAMF-Net'};
 
 hold on;

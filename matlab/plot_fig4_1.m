@@ -67,7 +67,7 @@ figure('Units', 'centimeters', 'Position', [2, 2, 24, 7], 'Color', 'white');
 
 % (a) 客船 PSD
 subplot(1, 4, 1);
-plot(f, 10*log10(avg_psd_passenger), 'k', 'LineWidth', 0.8);
+plot(f, 10*log10(avg_psd_passenger), 'Color', [0.00 0.45 0.74], 'LineWidth', 1.0);
 xlabel('频率 (Hz)'); ylabel('PSD (dB/Hz)');
 title('(a) 客船 PSD', 'FontWeight', 'bold');
 xlim([0 4000]); grid on; box on;
@@ -75,7 +75,7 @@ psd_data = 10*log10(avg_psd_passenger);
 
 % (b) 滚装船 PSD
 subplot(1, 4, 2);
-plot(f, 10*log10(avg_psd_roro), 'k', 'LineWidth', 0.8);
+plot(f, 10*log10(avg_psd_roro), 'Color', [0.47 0.67 0.19], 'LineWidth', 1.0);
 xlabel('频率 (Hz)'); ylabel('PSD (dB/Hz)');
 title('(b) 滚装船 PSD', 'FontWeight', 'bold');
 xlim([0 4000]); grid on; box on;
@@ -83,7 +83,7 @@ psd_data = [psd_data; 10*log10(avg_psd_roro)];
 
 % (c) 背景噪声 PSD
 subplot(1, 4, 3);
-plot(f, 10*log10(avg_psd_noise), 'k', 'LineWidth', 0.8);
+plot(f, 10*log10(avg_psd_noise), 'Color', [0.50 0.50 0.50], 'LineWidth', 0.8);
 xlabel('频率 (Hz)'); ylabel('PSD (dB/Hz)');
 title('(c) 背景噪声 PSD', 'FontWeight', 'bold');
 xlim([0 4000]); grid on; box on;
@@ -91,7 +91,9 @@ psd_data = [psd_data; 10*log10(avg_psd_noise)];
 
 % (d) 混合信号 PSD 对比
 subplot(1, 4, 4);
-plot(f, 10*log10(pxx_mp), 'k-', f, 10*log10(pxx_mr), 'k--', 'LineWidth', 0.8);
+plot(f, 10*log10(pxx_mp), 'Color', [0.00 0.45 0.74], 'LineWidth', 1.0);
+hold on;
+plot(f, 10*log10(pxx_mr), 'Color', [0.47 0.67 0.19], 'LineWidth', 1.0);
 xlabel('频率 (Hz)'); ylabel('PSD (dB/Hz)');
 title(sprintf('(d) 混合信号 PSD (%d dB)', snr_mix), 'FontWeight', 'bold');
 legend('客船混合', '滚装船混合', 'Location', 'southwest', 'Box', 'off');

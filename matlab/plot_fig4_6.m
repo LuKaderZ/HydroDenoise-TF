@@ -36,7 +36,7 @@ for g = 1:numGroups
 end
 
 % ==================== 绘图 ====================
-grayColors = {[0.25 0.25 0.25], [0.55 0.55 0.55], [0.85 0.85 0.85]};
+grayColors = {[0.00 0.45 0.74], [0.47 0.67 0.19], [0.64 0.08 0.18]};
 
 figure('Units', 'centimeters', 'Position', [2, 2, 16, 8], ...
        'Color', 'white', 'PaperPositionMode', 'auto');

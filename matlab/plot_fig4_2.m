@@ -147,12 +147,12 @@ yMarginNoisy = 0.05 * (max(noisy_disp) - min(noisy_disp));
 yLimNoisy = [min(noisy_disp) - yMarginNoisy, max(noisy_disp) + yMarginNoisy];
 
 subPlots = {
-    '干净信号',                clean_disp, [0.0 0.0 0.0];
-    '带噪信号',                noisy_disp, [0.4 0.4 0.4];
-    'CRN 降噪后',              crn_disp,   [0.3 0.3 0.3];
-    'Conv-TasNet 降噪后',      ct_disp,    [0.3 0.3 0.3];
-    'DPRNN 降噪后',            dp_disp,    [0.3 0.3 0.3];
-    'DCAMF-Net 降噪后',        dc_disp,    [0.0 0.0 0.0];
+    '干净信号',                clean_disp, [0.00 0.00 0.00];
+    '带噪信号',                noisy_disp, [0.50 0.50 0.50];
+    'CRN 降噪后',              crn_disp,   [0.85 0.33 0.10];
+    'Conv-TasNet 降噪后',      ct_disp,    [0.00 0.45 0.74];
+    'DPRNN 降噪后',            dp_disp,    [0.93 0.69 0.13];
+    'DCAMF-Net 降噪后',        dc_disp,    [0.64 0.08 0.18];
 };
 
 for i = 1:6
