@@ -1,0 +1,79 @@
+"""图4-6: DCAMF-Net 泛化性能评估 (ShipsEar 三个测试集, SI-SNRi + SDRi)"""
+import numpy as np
+import matplotlib.pyplot as plt
+from plot_utils import *
+
+plt.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['axes.unicode_minus'] = False
+
+target_snrs = [-15, -10, -5]
+test_sets = {
+    'test1': (DATA_T1_CLEAN, DATA_T1_NOISY, DC_DIR),
+    'test2': (DATA_T2_CLEAN, DATA_T2_NOISY, DC_DIR_T2),
+    'test3': (DATA_T3_CLEAN, DATA_T3_NOISY, DC_DIR_T3),
+}
+names = ['Test-1 (已知船型+已知噪声)', 'Test-2 (未知船型+已知噪声)', 'Test-3 (已知船型+未知噪声)']
+
+# ---- Compute SI-SNRi/SDRi per sample per test set ----
+all_results = []
+for s, (key, (clean_d, noisy_d, dc_d)) in enumerate(test_sets.items()):
+    cfiles = sorted(clean_d.glob('*.wav'))
+    for f in cfiles:
+        dp = dc_d / f.name
+        if not dp.exists(): continue
+        clean = load_wav(f)
+        noisy = load_wav(noisy_d / f.name)
+        denoised = load_wav(dp)
+        L = min(len(clean), len(noisy), len(denoised))
+        clean, noisy, denoised = clean[:L], noisy[:L], denoised[:L]
+        noise_actual = noisy - clean
+        actual_snr = 10 * np.log10(np.mean(clean**2) / (np.mean(noise_actual**2) + 1e-10))
+        snr_idx = np.argmin(np.abs(np.array(target_snrs) - actual_snr))
+        sii = compute_sisnr(denoised, clean) - compute_sisnr(noisy, clean)
+        sdi = compute_sdr(denoised, clean) - compute_sdr(noisy, clean)
+        all_results.append({'set': s, 'snr': target_snrs[snr_idx], 'sii': sii, 'sdi': sdi})
+
+# ---- Aggregate ----
+sisnri = np.full((3, 3), np.nan)
+sdri   = np.full((3, 3), np.nan)
+for s in range(3):
+    for t, snr in enumerate(target_snrs):
+        mask = [(r['set'] == s and r['snr'] == snr) for r in all_results]
+        if any(mask):
+            sisnri[s, t] = np.mean([r['sii'] for r, m in zip(all_results, mask) if m])
+            sdri[s, t]   = np.mean([r['sdi'] for r, m in zip(all_results, mask) if m])
+
+bar_colors = [COLORS['ConvTasNet'], COLORS['CRN'], '#7E2F8E']  # blue, orange, purple
+
+# ---- Plot ----
+fig, axes = plt.subplots(1, 2, figsize=(14, 5.5))
+
+for ax, data, ylabel, title in [
+    (axes[0], sisnri, 'SI-SNRi (dB)', '(a) SI-SNR Improvement'),
+    (axes[1], sdri,   'SDRi (dB)',   '(b) SDR Improvement'),
+]:
+    x = np.arange(3)
+    w = 0.25
+    for i in range(3):
+        bars = ax.bar(x + i*w, data[i], w, label=names[i],
+                      color=bar_colors[i], edgecolor='black', linewidth=0.5)
+        for j, (bx, by) in enumerate(zip(x + i*w, data[i])):
+            if not np.isnan(by):
+                ax.text(bx, by, f'{by:.2f}', ha='center', va='bottom', fontsize=8)
+
+    ax.set_xticks(x + w)
+    ax.set_xticklabels([f'{s} dB' for s in target_snrs])
+    ax.set_xlabel('Input SNR'); ax.set_ylabel(ylabel)
+    ax.set_title(title, fontweight='bold')
+    ax.legend(fontsize=8); ax.grid(axis='y', alpha=0.3)
+
+    all_vals = data[~np.isnan(data)]
+    if len(all_vals) > 0:
+        yb = min(0, np.floor(np.min(all_vals)) - 1) if np.min(all_vals) < 0 else 0
+        ax.set_ylim(yb, np.ceil(np.max(all_vals)) + 1)
+
+plt.tight_layout()
+fig.savefig(FIG_DIR / 'fig4-6_DCAMF_Net_ShipsEar.pdf', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-6_DCAMF_Net_ShipsEar.png', dpi=300, bbox_inches='tight')
+plt.show()
+print('图4-6 已保存')
