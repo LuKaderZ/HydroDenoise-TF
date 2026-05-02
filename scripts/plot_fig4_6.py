@@ -59,7 +59,9 @@ for ax, data, ylabel, title in [
                       color=bar_colors[i], edgecolor='black', linewidth=0.5)
         for j, (bx, by) in enumerate(zip(x + i*w, data[i])):
             if not np.isnan(by):
-                ax.text(bx, by, f'{by:.2f}', ha='center', va='bottom', fontsize=8)
+                va = 'top' if by < 0 else 'bottom'
+                offset = -0.5 if by < 0 else 0
+                ax.text(bx, by + offset, f'{by:.2f}', ha='center', va=va, fontsize=7)
 
     ax.set_xticks(x + w)
     ax.set_xticklabels([f'{s} dB' for s in target_snrs])
@@ -69,8 +71,9 @@ for ax, data, ylabel, title in [
 
     all_vals = data[~np.isnan(data)]
     if len(all_vals) > 0:
-        yb = min(0, np.floor(np.min(all_vals)) - 1) if np.min(all_vals) < 0 else 0
-        ax.set_ylim(yb, np.ceil(np.max(all_vals)) + 1)
+        yb = np.floor(np.min(all_vals)) - 1 if np.min(all_vals) < 0 else 0
+        ax.set_ylim(yb, np.ceil(np.max(all_vals)) + 2)
+        ax.axhline(0, color='black', linewidth=0.5, linestyle='-')
 
 plt.tight_layout()
 fig.savefig(FIG_DIR / 'fig4-6_DCAMF_Net_ShipsEar.pdf', dpi=300, bbox_inches='tight')
