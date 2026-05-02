@@ -65,7 +65,7 @@ for ax, (label, sig) in zip(axes.flat, signals.items()):
     ax.set_xlabel('时间 (ms)'); ax.set_ylabel('幅度')
     ax.set_title(label, fontweight='bold')
     ax.set_xlim(t_ms[0], t_ms[-1])
-    ax.set_ylim(y_noisy if label == 'Noisy' else y_other)
+    ax.set_ylim(y_noisy if label == '带噪信号' else y_other)
     ax.grid(True)
 
 plt.tight_layout()
