@@ -38,11 +38,11 @@ end
 % ==================== 绘图 ====================
 grayColors = {[0.00 0.45 0.74], [0.47 0.67 0.19], [0.64 0.08 0.18]};
 
-figure('Units', 'centimeters', 'Position', [2, 2, 16, 12], ...
+figure('Units', 'centimeters', 'Position', [2, 2, 18, 12], ...
        'Color', 'white', 'PaperPositionMode', 'auto');
 
 % 水平分组柱状图
-barData = weights';   % 10×3矩阵
+barData = weights';
 b = barh(barData, 0.8, 'grouped', 'EdgeColor', 'k', 'LineWidth', 0.6);
 for i = 1:length(b)
     b(i).FaceColor = grayColors{i};
@@ -57,19 +57,24 @@ grid on;
 set(gca, 'GridLineStyle', ':', 'GridAlpha', 0.4, 'GridColor', [0.2 0.2 0.2]);
 box on;
 
-% 柱端数值标签（仅当权重大于0.01时显示）
+% 数值标签 (barh 下 XEndPoints 和 YEndPoints 需要交换)
 for i = 1:length(b)
-    v = b(i).XEndPoints;   % bar values (weights)
-    y = b(i).YEndPoints;   % bar positions (layers)
-    for j = 1:length(v)
-        if v(j) > 0.01
-            text(v(j) + 0.01, y(j), sprintf('%.2f', v(j)), ...
-                'HorizontalAlignment', 'left', ...
+    xtips = b(i).YEndPoints + 0.01;
+    ytips = b(i).XEndPoints;
+    labels = string(b(i).YData);
+    vals_display = compose('%.2f', b(i).YData);
+    for j = 1:length(labels)
+        if str2double(labels(j)) > 0.01
+            text(xtips(j), ytips(j), vals_display(j), ...
                 'VerticalAlignment', 'middle', ...
+                'HorizontalAlignment', 'left', ...
                 'FontSize', 8, 'Color', 'k');
         end
     end
 end
+
+allW = weights(:);
+xlim([0, max(allW) * 1.15]);
 
 legend(groupNames, 'Location', 'northeast', 'FontSize', 10, 'Box', 'off');
 
