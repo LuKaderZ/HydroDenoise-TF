@@ -157,7 +157,11 @@ subPlots = {
 
 for i = 1:6
     subplot(3, 2, i);
+    hold on;
     plot(t_disp, subPlots{i,2}, 'Color', subPlots{i,3}, 'LineWidth', 0.8);
+    if i ~= 1
+        plot(t_disp, clean_disp, 'k:', 'LineWidth', 0.5);
+    end
     xlabel('时间 (ms)');
     ylabel('幅度');
     title(subPlots{i,1}, 'FontWeight', 'bold');
@@ -169,7 +173,7 @@ for i = 1:6
         ylim(yLimOther);
     end
 
-    grid on; box on;
+    grid on; box on; hold off;
 end
 
 % ==================== 保存 ====================
