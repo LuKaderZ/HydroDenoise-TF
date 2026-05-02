@@ -38,35 +38,34 @@ end
 % ==================== 绘图 ====================
 grayColors = {[0.00 0.45 0.74], [0.47 0.67 0.19], [0.64 0.08 0.18]};
 
-figure('Units', 'centimeters', 'Position', [2, 2, 16, 8], ...
+figure('Units', 'centimeters', 'Position', [2, 2, 16, 12], ...
        'Color', 'white', 'PaperPositionMode', 'auto');
 
-% 分组柱状图：每组10个柱子，三组并排
-x = (1:numLayers)';
+% 水平分组柱状图
 barData = weights';   % 10×3矩阵
-b = bar(barData, 0.8, 'grouped', 'EdgeColor', 'k', 'LineWidth', 0.6);
+b = barh(barData, 0.8, 'grouped', 'EdgeColor', 'k', 'LineWidth', 0.6);
 for i = 1:length(b)
     b(i).FaceColor = grayColors{i};
     b(i).BarWidth = 0.8;
 end
 
-xlabel('DCAM模块层数');
-ylabel('融合权重 (softmax)');
+xlabel('融合权重 (softmax)');
+ylabel('DCAM模块层数');
 title('不同信噪比下多层掩码融合权重分布', 'FontWeight', 'bold');
-set(gca, 'XTickLabel', 1:numLayers);
+set(gca, 'YTickLabel', 1:numLayers);
 grid on;
 set(gca, 'GridLineStyle', ':', 'GridAlpha', 0.4, 'GridColor', [0.2 0.2 0.2]);
 box on;
 
-% 柱顶数值标签（仅当权重大于0.01时显示，避免杂乱）
+% 柱端数值标签（仅当权重大于0.01时显示）
 for i = 1:length(b)
-    xEnds = b(i).XEndPoints;
-    yEnds = b(i).YEndPoints;
+    xEnds = b(i).YEndPoints;
+    yEnds = b(i).XEndPoints;
     for j = 1:length(yEnds)
         if yEnds(j) > 0.01
-            text(xEnds(j), yEnds(j), sprintf('%.2f', yEnds(j)), ...
-                'HorizontalAlignment', 'center', ...
-                'VerticalAlignment', 'bottom', ...
+            text(yEnds(j), xEnds(j), sprintf('%.2f', yEnds(j)), ...
+                'HorizontalAlignment', 'left', ...
+                'VerticalAlignment', 'middle', ...
                 'FontSize', 8, 'Color', 'k');
         end
     end
