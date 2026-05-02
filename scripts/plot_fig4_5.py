@@ -44,7 +44,7 @@ bar_colors = [COLORS['CRN'], COLORS['ConvTasNet'], COLORS['DPRNN'], COLORS['DCAM
 model_names = ['CRN', 'Conv-TasNet', 'DPRNN', 'DCAMF-Net']
 freq_labels = [f'{int(round(fq))} Hz' for fq in line_freqs]
 
-fig, ax = plt.subplots(figsize=(10, 5))
+fig, ax = plt.subplots(figsize=(6, 3.5))
 x = np.arange(len(line_freqs)); w = 0.2
 
 for i in range(4):

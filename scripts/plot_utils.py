@@ -6,16 +6,20 @@ from pathlib import Path
 from scipy.signal import welch, find_peaks
 
 def setup_style():
-    """Unified font & style for all thesis figures."""
+    """论文统一风格：字号适中，PDF矢量输出保证插入Word后清晰可读。
+
+    论文全文列宽约 15 cm，每张图 figsize 宽度设为此值或其比例，
+    保存时 bbox_inches='tight' 自动裁白边，插图时缩放到列宽即可。
+    """
     plt.rcParams.update({
         'font.sans-serif': ['SimHei'],
-        'font.size': 10,
-        'axes.titlesize': 11,
-        'axes.labelsize': 10,
-        'xtick.labelsize': 9,
-        'ytick.labelsize': 9,
-        'legend.fontsize': 9,
-        'figure.dpi': 300,
+        'font.size': 9,
+        'axes.titlesize': 10,
+        'axes.labelsize': 9,
+        'xtick.labelsize': 8,
+        'ytick.labelsize': 8,
+        'legend.fontsize': 8,
+        'figure.dpi': 150,
         'savefig.dpi': 300,
         'savefig.bbox': 'tight',
         'axes.unicode_minus': False,

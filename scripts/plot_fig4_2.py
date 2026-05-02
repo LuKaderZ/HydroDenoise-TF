@@ -45,7 +45,7 @@ for k in signals: signals[k] = gaussian_filter1d(signals[k], sigma=1.0)
 t_ms = np.arange(win_len) / FS * 1000
 
 # ---- Plot ----
-fig, axes = plt.subplots(3, 2, figsize=(14, 10))
+fig, axes = plt.subplots(3, 2, figsize=(6, 7))
 model_colors = {
     '干净信号': COLORS['clean'], '带噪信号': COLORS['noisy'],
     'CRN': COLORS['CRN'], 'Conv-TasNet': COLORS['ConvTasNet'],
