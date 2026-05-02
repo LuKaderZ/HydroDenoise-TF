@@ -6,6 +6,8 @@ from plot_utils import *
 PROJECT_ROOT = Path(r'C:\Users\XUWEILUN\Desktop\HydroDenoise-TF')
 target_snrs = [-15, -10, -5]
 
+# (est_dir, clean_dir, noisy_dir, naming_mode)
+# naming_mode: 'name' = same filename as clean; 1=CRN; 2=ConvTas/DPRNN
 MODELS = {
     'CRN': {
         'ShipsEar': (CRN_DIR, DATA_T1_CLEAN, DATA_T1_NOISY, 1),
@@ -28,10 +30,10 @@ MODELS = {
                       PROJECT_ROOT/'data/DeepShip/test/noisy', 2),
     },
     'DCAMF-Net': {
-        'ShipsEar': (DC_DIR, DATA_T1_CLEAN, DATA_T1_NOISY, 3),
+        'ShipsEar': (DC_DIR, DATA_T1_CLEAN, DATA_T1_NOISY, 'name'),
         'DeepShip': (PROJECT_ROOT/'experiments/dcamf_net/denoised/DeepShip_test',
                       PROJECT_ROOT/'data/DeepShip/test/clean',
-                      PROJECT_ROOT/'data/DeepShip/test/noisy', 3),
+                      PROJECT_ROOT/'data/DeepShip/test/noisy', 'name'),
     },
 }
 
@@ -49,7 +51,7 @@ print('=' * 60)
 # ---- Main models ----
 for model_name, datasets in MODELS.items():
     print(f'\n--- {model_name} ---')
-    for ds_name, (est_dir, clean_dir, noisy_dir, est_type) in datasets.items():
+    for ds_name, (est_dir, clean_dir, noisy_dir, naming) in datasets.items():
         if not Path(est_dir).exists():
             print(f'  {ds_name}: SKIP (estimates not found)')
             continue
@@ -57,10 +59,16 @@ for model_name, datasets in MODELS.items():
         all_sii, all_sdi = [], []
 
         for idx, cf in enumerate(cfiles):
-            try:
-                enhanced = load_est(est_dir, idx + 1, est_type)
-            except FileNotFoundError:
-                continue
+            if naming == 'name':
+                enhanced_file = Path(est_dir) / cf.name
+                if not enhanced_file.exists():
+                    continue
+                enhanced = load_wav(enhanced_file)
+            else:
+                try:
+                    enhanced = load_est(est_dir, idx + 1, naming)
+                except FileNotFoundError:
+                    continue
             clean = load_wav(cf)
             noisy = load_wav(Path(noisy_dir) / cf.name)
             L = min(len(clean), len(noisy), len(enhanced))
