@@ -9,12 +9,12 @@ def setup_style():
     """Unified font & style for all thesis figures."""
     plt.rcParams.update({
         'font.sans-serif': ['SimHei'],
-        'font.size': 9,
-        'axes.titlesize': 10,
-        'axes.labelsize': 9,
-        'xtick.labelsize': 8,
-        'ytick.labelsize': 8,
-        'legend.fontsize': 8,
+        'font.size': 10,
+        'axes.titlesize': 11,
+        'axes.labelsize': 10,
+        'xtick.labelsize': 9,
+        'ytick.labelsize': 9,
+        'legend.fontsize': 9,
         'figure.dpi': 300,
         'savefig.dpi': 300,
         'savefig.bbox': 'tight',
