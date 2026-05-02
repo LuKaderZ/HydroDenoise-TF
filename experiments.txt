@@ -25,5 +25,5 @@
   No Conv Enhance          : SI-SNRi =   10.12 dB, SDRi =   12.91 dB  (n=1722)
 
 ============================================================
-  Done. Copy values above to experiments_log.md / Table 4.1 & 4.2
+  Done. Results saved to experiments.txt
 ============================================================
