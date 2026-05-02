@@ -93,7 +93,7 @@ for i, ax in enumerate(axes.flat):
     ax.set_title(titles[i], fontweight='bold')
     fig.colorbar(im, ax=ax)
 
-plt.tight_layout()
+plt.subplots_adjust(hspace=0.45, wspace=0.25)
 
 save_dir = project_root / 'figures'
 save_dir.mkdir(exist_ok=True)
