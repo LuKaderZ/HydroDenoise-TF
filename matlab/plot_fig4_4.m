@@ -129,7 +129,7 @@ for i = 1:4
         if abs(val) > 0.5
             text(x(j)+(i-2.5)*width, val, sprintf('%.1f', val), ...
                  'HorizontalAlignment', 'center', 'VerticalAlignment', ...
-                 'bottom', 'FontSize', 7, 'Color', grayColors{i});
+                 'bottom', 'FontSize', 7, 'Color', 'k');
         end
     end
 end
@@ -142,6 +142,13 @@ title('各模型线谱功率恢复对比 (0 dB 为完美恢复)', 'FontWeight', 
 legend([bars{1}, bars{2}, bars{3}, bars{4}], modelNames, ...
        'Location', 'best', 'Box', 'off', 'FontSize', 9);
 grid on; box on;
+
+% 纵轴留边距，避免柱子贴顶或数字溢出
+allVals = dev(:);
+yTop = max(allVals) * 1.15;
+yBot = min(min(allVals) * 1.15, -2);
+ylim([yBot, yTop]);
+
 hold off;
 
 % ==================== 保存 ====================
