@@ -3,7 +3,7 @@ import numpy as np
 import soundfile as sf
 import matplotlib.pyplot as plt
 from pathlib import Path
-from scipy.signal import welch, find_peaks
+from scipy.signal import welch, find_peaks, medfilt
 
 def setup_style():
     """论文统一风格：字号适中，PDF矢量输出保证插入Word后清晰可读。
@@ -108,27 +108,105 @@ def psd_db(sig, nperseg=1024, noverlap=None):
     return f, 10 * np.log10(pxx + 1e-10)
 
 # ---- Line spectrum detection ----
-def find_line_spectra(audio_dir=RAW_PASSENGER, n_peaks=5, freq_range=(0, 4000)):
-    """Auto-detect prominent line frequencies from average PSD of ship audio."""
+def find_line_spectra(audio_dir=RAW_PASSENGER, n_peaks=5, freq_range=(100, 4000),
+                      prominence=3, distance=3):
+    """Auto-detect prominent line frequencies from average PSD of ship audio.
+
+    Methodology:
+      1. Compute average PSD across all clean ship recordings.
+      2. Median-filter the PSD to estimate the broadband continuum.
+      3. De-trend (PSD − background) to get the "contrast spectrum".
+      4. Score each frequency bin by: contrast × narrowness × harmonic bonus.
+      5. Find peaks on the score curve; pick top n_peaks.
+
+    Ship acoustic fingerprint reference:
+      - Propeller lines: blade_rate = n_blades * shaft_rpm / 60, typically 50~500 Hz
+      - Mechanical lines: engine firing rate & harmonics, 100~1000 Hz
+      - Hull resonance: 50~5000 Hz
+    """
     files = sorted(Path(audio_dir).glob('*.wav'))
     avg_pxx = None
-    for f in files:
-        sig = load_wav(f)
+    for fname in files:
+        sig = load_wav(fname)
         _, pxx = welch(sig, FS, nperseg=2048, noverlap=1024, nfft=4096)
-        if avg_pxx is None: avg_pxx = pxx
-        else: avg_pxx += pxx
+        if avg_pxx is None:
+            avg_pxx = pxx
+        else:
+            avg_pxx += pxx
     avg_pxx /= len(files)
 
-    f = np.fft.rfftfreq(4096, 1/FS)
+    nfft = 4096
+    f = np.fft.rfftfreq(nfft, 1 / FS)
     mask = (f >= freq_range[0]) & (f <= freq_range[1])
     pxx_db = 10 * np.log10(avg_pxx[mask] + 1e-10)
     f_sub = f[mask]
+    n_bins = len(pxx_db)
 
-    peaks, props = find_peaks(pxx_db, prominence=3, distance=3)  # ~12 Hz, close to MATLAB's 10 Hz
-    if len(peaks) > n_peaks:
-        top = np.argsort(props['prominences'])[-n_peaks:]
-        peaks = peaks[top]
-    return np.sort(f_sub[peaks])
+    # --- De-trend: median-filter background estimate ---
+    med_win = max(int(n_bins / 20), 21)
+    if med_win % 2 == 0:
+        med_win += 1
+    background = medfilt(pxx_db, med_win)
+    contrast = pxx_db - background              # dB above local continuum
+
+    # --- Peak-width (narrowness) score per bin ---
+    # A true line spectrum is narrow: 1-3 bins (~4-12 Hz).  Broader bumps
+    # (resonances, continuum warps) get penalised.
+    # Approximate local second derivative: peakedness = -(contrast'').
+    peakedness = np.zeros_like(contrast)
+    peakedness[1:-1] = -np.diff(contrast, n=2)   # neg 2nd deriv, padded at edges
+    peakedness = np.maximum(peakedness, 0)
+    if peakedness.max() > 0:
+        peakedness /= peakedness.max()
+    else:
+        peakedness[:] = 1.0
+
+    # --- Combined score ---
+    score = np.maximum(contrast, 0) * peakedness
+
+    # --- Rough peak detection with low threshold, then rank ---
+    # Use the raw contrast curve for detection (more peaks than score curve,
+    # since score = contrast × peakedness can suppress weak narrow peaks).
+    peaks, props = find_peaks(contrast, prominence=1.5, distance=3)
+    if len(peaks) < 3:
+        # Fallback: even lower threshold
+        peaks, props = find_peaks(contrast, prominence=0.8, distance=2)
+    if len(peaks) == 0:
+        return np.array([])
+
+    peak_freqs = f_sub[peaks]
+    peak_scores = score[peaks]
+
+    bonus = _harmonic_bonus(peak_freqs, peak_scores)
+    total_scores = peak_scores + bonus
+
+    # --- Diagnostic: print all candidates ---
+    print(f'[find_line_spectra] {len(peaks)} candidates in {freq_range[0]}-{freq_range[1]} Hz:')
+    order_all = np.argsort(total_scores)[::-1]
+    for rank, idx in enumerate(order_all[:max(n_peaks + 3, len(order_all))]):
+        print(f'  #{rank+1}: {peak_freqs[idx]:6.1f} Hz  '
+              f'contrast={contrast[peaks[idx]]:.1f} dB  '
+              f'peakedness={peakedness[peaks[idx]]:.3f}  '
+              f'score={peak_scores[idx]:.3f}  bonus={bonus[idx]:.3f}  total={total_scores[idx]:.3f}')
+
+    order = order_all[:min(n_peaks, len(order_all))]
+    return np.sort(peak_freqs[order])
+
+
+def _harmonic_bonus(freqs, scores):
+    """Small bonus for peaks that form harmonic (integer-ratio) groups."""
+    n = len(freqs)
+    bonus = np.zeros(n)
+    tol = 0.04
+    for i in range(n):
+        for j in range(i + 1, n):
+            ratio = freqs[j] / freqs[i]
+            k = round(ratio)
+            if k >= 2 and abs(ratio - k) < tol:
+                b = 0.3 * min(scores[i], scores[j])
+                bonus[i] += b
+                bonus[j] += b
+    return bonus
 
 # ---- Sample selection ----
 def select_best_transient():
