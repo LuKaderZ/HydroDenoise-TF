@@ -77,7 +77,7 @@ python scripts/compute_all_metrics.py                # 输出到 experiments.txt
 
 ### 数据流
 
-```
+```text
 原始音频 (ShipsEar/DeepShip, 各船型/噪声类别)
   → prepare_data.py (16kHz重采样, 3秒片段, SNR混合)
   → data/{dataset}/{split}/noisy/ + clean/
@@ -107,17 +107,17 @@ python scripts/compute_all_metrics.py                # 输出到 experiments.txt
 
 ### 关键路径
 
-| 用途 | 路径 |
-|------|------|
-| 模型定义 | `dcamf_net/model.py` |
-| 训练入口 | `dcamf_net/train.py` |
-| 推理评估 | `dcamf_net/test.py` + `dcamf_net/config.py` |
-| 数据加载 | `dcamf_net/dataset.py` |
-| 损失函数 | `dcamf_net/loss.py` |
-| 出图公共工具 | `scripts/plot_utils.py` |
-| 线谱检测算法 | `scripts/plot_utils.py` → `find_line_spectra()` |
-| 掩码融合权重日志 | `experiments/mask_fusion_weights/` |
-| 模型最佳权重 | `experiments/dcamf_net/checkpoints/best_SISNR.pth` |
+| 用途             | 路径                                               |
+| ---------------- | -------------------------------------------------- |
+| 模型定义         | `dcamf_net/model.py`                               |
+| 训练入口         | `dcamf_net/train.py`                               |
+| 推理评估         | `dcamf_net/test.py` + `dcamf_net/config.py`        |
+| 数据加载         | `dcamf_net/dataset.py`                             |
+| 损失函数         | `dcamf_net/loss.py`                                |
+| 出图公共工具     | `scripts/plot_utils.py`                            |
+| 线谱检测算法     | `scripts/plot_utils.py` → `find_line_spectra()`    |
+| 掩码融合权重日志 | `experiments/mask_fusion_weights/`                 |
+| 模型最佳权重     | `experiments/dcamf_net/checkpoints/best_SISNR.pth` |
 
 ## 论文出图约定
 
@@ -139,11 +139,11 @@ python scripts/compute_all_metrics.py                # 输出到 experiments.txt
 
 算法流程：中值滤波去趋势(窗口=n_bins/20) → 对比度×二阶导数窄度评分 → 谐波检验(4%容差) → 综合排名取 top-N
 
-| 参数 | 默认值 | 原因 |
-|------|--------|------|
-| `freq_range` | `(100, 4000)` | 低于 100Hz 在 16kHz 采样下不可靠 |
-| `prominence` | `1.5` | 去趋势后对比度曲线上的弱线谱也能抓到 |
-| `distance` | `3` | ~12Hz 最小间距，匹配 Welch 频率分辨率 |
+| 参数         | 默认值        | 原因                                  |
+| ------------ | ------------- | ------------------------------------- |
+| `freq_range` | `(100, 4000)` | 低于 100Hz 在 16kHz 采样下不可靠      |
+| `prominence` | `1.5`         | 去趋势后对比度曲线上的弱线谱也能抓到  |
+| `distance`   | `3`           | ~12Hz 最小间距，匹配 Welch 频率分辨率 |
 
 **修改线谱算法后必须重跑 fig4_3 和 fig4_5**，两个脚本共享此函数且样本选择依赖线谱频率。
 
@@ -155,6 +155,7 @@ python scripts/compute_all_metrics.py                # 输出到 experiments.txt
 - **thesis-review**（`.claude/skills/thesis-review/SKILL.md`）：审查论文文字，检查过度声称、信号处理类比不准确、描述与代码不一致等问题
 
 论文审查的核心原则（来自多轮 GPT 反馈）：
+
 - 弱化因果断言，用"有助于/可能/在本文实验条件下"替代"验证了/证明了/确实"
 - 单样本可视化图必须加"该样本仅用于定性可视化分析，整体性能判断以全测试集统计结果为准"
 - 避免将神经网络模块描述为显式信号处理操作（如"谱减""维纳滤波""子带平滑"），代码中没有对应实现
@@ -172,7 +173,7 @@ pip install tqdm numpy scipy matplotlib soundfile thop fast-bss-eval tensorboard
 
 ## 数据集结构
 
-```
+```text
 raw_data/
 ├── ShipsEar/{passenger,roro,motorboat,wind,flow,reservoir}/
 └── DeepShip/{Cargo,Tug,Passengership,Tanker}/

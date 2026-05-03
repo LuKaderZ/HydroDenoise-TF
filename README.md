@@ -52,7 +52,7 @@ cd HydroDenoise-TF
 
 ### 本地环境（推理与绘图）
 
-确保本地已安装 MATLAB（用于图形绘制）和 Python 环境，安装依赖同上（无需 CUDA 版本的 PyTorch）。
+需要 Python 环境，安装依赖同上（无需 CUDA 版本的 PyTorch）。
 
 ---
 
@@ -62,7 +62,7 @@ cd HydroDenoise-TF
 
 下载 **ShipsEar** 和 **DeepShip** 数据集，按以下结构放入 `raw_data/`：
 
-```
+```text
 raw_data/
 ├── ShipsEar/
 │   ├── passenger/      # 客船辐射噪声
@@ -152,7 +152,7 @@ python prepare_data_low.py    # 低 SNR 组（[-15, -10] dB）
 
 训练完毕后，将各组的 `train.log` 重命名放入：
 
-```
+```text
 experiments/mask_fusion_weights/
 ├── train_avg.log     # 平均 SNR 组（三组等概率混合）
 ├── train_low.log     # 低 SNR 组
@@ -172,18 +172,20 @@ cd dcamf_net
 python test.py
 ```
 
-### MATLAB 绘图
+### Python 绘图
 
-在 MATLAB 中依次运行 `scripts/` 下的绘图脚本：
+在 Python 环境中依次运行 `scripts/` 下的绘图脚本：
 
-| 脚本 | 生成图 | 内容 |
-|------|--------|------|
-| `plot_fig4_1.m` | 图 4.1 | 信号与噪声 PSD 概览 |
-| `plot_fig4_2.m` | 图 4.2 | 时域波形对比 |
-| `plot_fig4_3_overall_spectrum.m` | 图 4.3 | 总体频谱对比 |
-| `plot_fig4_4.m` | 图 4.4 | 关键线谱功率恢复 |
-| `plot_fig4_5.m` | 图 4.5 | 泛化性能评估 |
-| `plot_fig4_6.m` | 图 4.6 | 融合权重分布 |
+| 脚本                              | 生成图 | 内容                |
+| --------------------------------- | ------ | ------------------- |
+| `plot_fig4_1_shipsear_psd.py`     | 图 4.1 | 信号与噪声 PSD 概览 |
+| `plot_fig4_2_time_waveform.py`    | 图 4.2 | 时域波形对比        |
+| `plot_fig4_3_overall_spectrum.py` | 图 4.3 | 总体频谱对比        |
+| `plot_fig4_4_spectrogram.py`      | 图 4.4 | 语谱图对比          |
+| `plot_fig4_5_line_spectra.py`     | 图 4.5 | 关键线谱功率恢复    |
+| `plot_fig4_6_generalization.py`   | 图 4.6 | 泛化性能评估        |
+| `plot_fig4_7_fusion_weights.py`   | 图 4.7 | 融合权重分布        |
+| `plot_fig4_8_noise_estimation.py` | 图 4.8 | 噪声估计验证        |
 
 脚本会自动读取实验产物并保存图像至 `figures/` 目录。
 
@@ -191,7 +193,7 @@ python test.py
 
 ## 项目结构
 
-```
+```text
 HydroDenoise-TF/
 ├── dcamf_net/                  # DCAMF-Net 模型代码
 │   ├── model.py                #   网络结构定义
@@ -207,14 +209,14 @@ HydroDenoise-TF/
 │   ├── CRN-causal/
 │   ├── conv_tasnet/
 │   └── dprnn/
-├── scripts/                    # 数据准备
+├── scripts/                    # 数据准备 + 论文图表绘制
 │   ├── prepare_data.py
 │   ├── prepare_data_high.py
-│   └── prepare_data_low.py
-├── scripts/                     # 论文图表绘制
+│   ├── prepare_data_low.py
+│   └── plot_fig4_*_*.py
 ├── figures/                    # 图表输出
 ├── experiments/                # 训练产物（检查点、日志、降噪音频）
 ├── raw_data/                   # 原始数据集
 ├── data/                       # 处理后的训练/测试数据
-└── experiments_log.md          # 实验指标记录
+└── experiments.txt             # 实验指标记录
 ```
