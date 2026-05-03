@@ -67,4 +67,33 @@ plt.tight_layout()
 fig.savefig(FIG_DIR / 'fig4-3_overall_spectrum_comparison.pdf', dpi=300, bbox_inches='tight')
 fig.savefig(FIG_DIR / 'fig4-3_overall_spectrum_comparison.png', dpi=300, bbox_inches='tight')
 plt.show()
+
+# ---- 终端数据输出 ----
+print('\n========== 图4-3 数据 ==========')
+print(f'样本编号: {best_idx}')
+print(f'线谱参考线: {[f"{int(round(fq))} Hz" for fq in line_freqs]}')
+print()
+
+# 各模型 SI-SNRi / SDRi (在选中样本上)
+for name, sig in [('CRN', crn), ('Conv-TasNet', ct), ('DPRNN', dp), ('DCAMF-Net', dc)]:
+    sii = compute_sisnr(sig, clean) - compute_sisnr(noisy, clean)
+    sdi = compute_sdr(sig, clean) - compute_sdr(noisy, clean)
+    print(f'{name:>12s}: SI-SNRi={sii:+.2f} dB  SDRi={sdi:+.2f} dB')
+
+print()
+
+# PSD 关键频段统计
+def band_mean(psd, f_hz, lo, hi):
+    m = (f_hz >= lo) & (f_hz <= hi)
+    return np.mean(psd[m])
+
+bands = [(0, 500), (500, 1000), (1000, 2000), (2000, 4000)]
+for lo, hi in bands:
+    print(f'{lo}-{hi}Hz 平均PSD (dB/Hz):')
+    for name, pxx in [('干净', p_clean), ('带噪', p_noisy), ('CRN', p_crn),
+                       ('ConvTasNet', p_ct), ('DPRNN', p_dp), ('DCAMF', p_dc)]:
+        print(f'  {name:>12s}: {band_mean(pxx, f, lo, hi):.1f}')
+    print()
+
+print('================================\n')
 print('图4-3 已保存')
