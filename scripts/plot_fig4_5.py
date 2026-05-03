@@ -71,4 +71,22 @@ plt.tight_layout()
 fig.savefig(FIG_DIR / 'fig4-5_Line_Spectra_Bar.pdf', dpi=300, bbox_inches='tight')
 fig.savefig(FIG_DIR / 'fig4-5_Line_Spectra_Bar.png', dpi=300, bbox_inches='tight')
 plt.show()
+
+# ---- 数据输出（用于论文写作） ----
+print('\n========== 图4-5 数据 ==========')
+print(f'样本编号: {best_idx}')
+print(f'线谱频率: {freq_labels}')
+print()
+header = f'{"频率":>10s}  {"CRN":>8s}  {"ConvTasNet":>10s}  {"DPRNN":>8s}  {"DCAMF":>8s}'
+print(header)
+print('-' * len(header))
+for i, fq_label in enumerate(freq_labels):
+    print(f'{fq_label:>10s}  {dev[i,0]:+7.2f} dB  {dev[i,1]:+10.2f} dB  {dev[i,2]:+7.2f} dB  {dev[i,3]:+7.2f} dB')
+print()
+print('DCAMF-Net 相对于最佳基线的优势:')
+for i, fq_label in enumerate(freq_labels):
+    other_best = min(dev[i, 0:3])
+    advantage = other_best - dev[i, 3]
+    print(f'  {fq_label:>10s}: {advantage:+.2f} dB  (基线最优={other_best:+.2f}, DCAMF={dev[i,3]:+.2f})')
+print('================================\n')
 print('图4-5 已保存')
