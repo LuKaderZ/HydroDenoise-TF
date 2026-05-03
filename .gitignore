@@ -221,3 +221,6 @@ exp/
 
 # Claude files
 .claude/
+# draw.io auto-backup files
+.$*.bkp
+$*.bkp
