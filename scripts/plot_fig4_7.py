@@ -32,7 +32,7 @@ ax.set_yticks(y + h)
 ax.set_yticklabels([str(i) for i in range(1, 11)])
 ax.set_xlabel('融合权重 (softmax)')
 ax.set_ylabel('DCAM模块层数')
-ax.set_title('不同信噪比下多层掩码融合权重分布', fontweight='bold')
+
 ax.legend(fontsize=9)
 ax.grid(axis='x', alpha=0.3)
 all_w = np.concatenate([extract_fusion_weights(FUSION_LOG_DIR / f)
