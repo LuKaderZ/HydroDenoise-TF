@@ -57,16 +57,21 @@ python scripts/prepare_data_low.py
 ### 出图
 
 ```bash
-# 单张图片
-python scripts/plot_fig4_1_shipsear_psd.py
-python scripts/plot_fig4_2_time_waveform.py
-# ... (fig4_3 到 fig4_8 类推)
+# 八张论文图（全部输出到 figures/，PDF+PNG）
+python scripts/plot_fig4_1_shipsear_psd.py          # 图4.1 ShipsEar PSD 概览
+python scripts/plot_fig4_2_time_waveform.py          # 图4.2 时域波形对比
+python scripts/plot_fig4_3_overall_spectrum.py       # 图4.3 总体频谱对比
+python scripts/plot_fig4_4_spectrogram.py            # 图4.4 语谱图对比
+python scripts/plot_fig4_5_line_spectra.py           # 图4.5 线谱功率恢复
+python scripts/plot_fig4_6_generalization.py         # 图4.6 泛化性能
+python scripts/plot_fig4_7_fusion_weights.py         # 图4.7 融合权重分布
+python scripts/plot_fig4_8_noise_estimation.py       # 图4.8 噪声估计验证
 
-# IEEE 英文组合图
-python scripts/plot_ieee_figures.py
+# 全量指标评估
+python scripts/compute_all_metrics.py                # 输出到 experiments.txt
 ```
 
-出图脚本依赖（本地）：MATLAB 已安装（`plot_fig4_2` 用 `soundfile`，其余用 `scipy`）。所有图同时输出 PDF + PNG 到 `figures/`。
+所有脚本依赖 Python（scipy, numpy, soundfile, matplotlib），无需 MATLAB。
 
 ## 架构
 
@@ -116,16 +121,45 @@ python scripts/plot_ieee_figures.py
 
 ## 论文出图约定
 
-修改或新增 `scripts/plot_fig4_*.py` 时必须遵循（详见 `plot_utils.py` 的 `setup_style()`）：
+修改或新增 `scripts/plot_fig4_*.py` 时必须遵循（详见 `.claude/skills/thesis-plots/SKILL.md`）：
 
-- **画布宽度**: 6.5 inch（对应 A4 正文宽 16.5cm），高度按内容比例调整
-- **字体**: SimHei（中文），字号 8–10pt
-- **无图内标题** — 标题由 Word 排版添加，不要用 `plt.title()`
-- **输出格式**: PDF（矢量）+ PNG（预览），保存到 `figures/`，命名 `fig4_X_*.pdf/png`
-- **数据输出**: 涉及关键数据的图（fig4_3, fig4_5）需在终端打印详细数值用于论文写作
-- **颜色**: IEEE 配色，`plot_utils.py` 中预定义
-- 线谱检测、样本选择等共用逻辑在 `plot_utils.py`，各图脚本只写自己的差异部分
-- `plot_utils.py` 包含硬编码的 Windows 绝对路径（`PROJECT_ROOT`），跨平台使用时需修改
+- **画布宽度**: 6.5 inch（A4 正文宽 16.5cm），高度按内容调整
+- **字体**: SimHei（中文，不支持组合字符如 n̂ → 用 nest 代替）
+- **无图内标题**: `fig.suptitle()` 和单面板 `ax.set_title()` 一律去掉（标题由 Word 图注负责）；多面板子图标签如 (a)(b) 可保留
+- **中文标签**: 所有轴标签、图例、注释必须中文
+- **输出**: `figures/fig4-X_描述.pdf` + `.png`（短横连接图号，下划线连描述），dpi=300
+- **数据输出**: 涉及关键数值的图（fig4_3, fig4_5, fig4_8）终端打印详细数据供论文写作
+- **颜色**: `plot_utils.COLORS`（IEEE 配色），不要硬编码 hex
+- **路径**: 从 `plot_utils` 统一导入，不要自定义路径
+- **savefig**: 默认用 `bbox_inches='tight'`；手动 `subplots_adjust` 时不加
+- **子图间距**: 2×N 或 3×N 布局用 `hspace=0.40, wspace=0.25, top=0.93`
+- **图例性能**: 大量 artist 时避免 `loc='best'`，硬编码如 `loc='upper right'`
+
+## 线谱检测算法 (`plot_utils.py` → `find_line_spectra`)
+
+算法流程：中值滤波去趋势(窗口=n_bins/20) → 对比度×二阶导数窄度评分 → 谐波检验(4%容差) → 综合排名取 top-N
+
+| 参数 | 默认值 | 原因 |
+|------|--------|------|
+| `freq_range` | `(100, 4000)` | 低于 100Hz 在 16kHz 采样下不可靠 |
+| `prominence` | `1.5` | 去趋势后对比度曲线上的弱线谱也能抓到 |
+| `distance` | `3` | ~12Hz 最小间距，匹配 Welch 频率分辨率 |
+
+**修改线谱算法后必须重跑 fig4_3 和 fig4_5**，两个脚本共享此函数且样本选择依赖线谱频率。
+
+## 论文写作
+
+项目目录下有两个 skill 辅助论文工作：
+
+- **thesis-plots**（`.claude/skills/thesis-plots/SKILL.md`）：画图脚本规范，修改画图代码时自动加载
+- **thesis-review**（`.claude/skills/thesis-review/SKILL.md`）：审查论文文字，检查过度声称、信号处理类比不准确、描述与代码不一致等问题
+
+论文审查的核心原则（来自多轮 GPT 反馈）：
+- 弱化因果断言，用"有助于/可能/在本文实验条件下"替代"验证了/证明了/确实"
+- 单样本可视化图必须加"该样本仅用于定性可视化分析，整体性能判断以全测试集统计结果为准"
+- 避免将神经网络模块描述为显式信号处理操作（如"谱减""维纳滤波""子带平滑"），代码中没有对应实现
+- PReLU 不叫"稀疏化"，掩码融合权重是全局参数不叫"自适应选择"
+- SDR 公式使用简单能量比，不是 `fast_bss_eval`
 
 ## 环境依赖
 
