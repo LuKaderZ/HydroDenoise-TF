@@ -62,7 +62,7 @@ panels = [
 ]
 for ax, data, title, color in panels:
     ax.plot(f_plot/1000, data[mask], color=color, linewidth=1.0)
-    ax.set_xlabel('频率 (Hz)'); ax.set_ylabel('PSD (dB/Hz)')
+    ax.set_xlabel('频率 (kHz)'); ax.set_ylabel('PSD (dB/Hz)')
     ax.set_title(title, fontweight='bold')
     ax.set_xlim(0, 4); ax.grid(True)
     ax.set_ylim(all_dB.min() - y_margin, all_dB.max() + y_margin)
@@ -71,7 +71,7 @@ for ax, data, title, color in panels:
 ax = axes[1,1]
 ax.plot(f_plot/1000, psd(pxx_mp)[mask], color=COLORS['ConvTasNet'], linewidth=1.0, label='客船混合')
 ax.plot(f_plot/1000, psd(pxx_mr)[mask], color='#77AC30', linewidth=1.0, label='滚装船混合')
-ax.set_xlabel('频率 (Hz)'); ax.set_ylabel('PSD (dB/Hz)')
+ax.set_xlabel('频率 (kHz)'); ax.set_ylabel('PSD (dB/Hz)')
 ax.set_title('(d) 混合信号 PSD (-15 dB)', fontweight='bold')
 ax.set_xlim(0, 4); ax.legend(fontsize=8); ax.grid(True)
 ax.set_ylim(all_dB.min() - y_margin, all_dB.max() + y_margin)
