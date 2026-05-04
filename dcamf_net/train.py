@@ -23,14 +23,9 @@ except (ImportError, ModuleNotFoundError):
     thop = None
     profile = None
 
-try:
-    from model import DCAMFNet
-    from dataset import AudioDenoisingDataset
-    from loss import RnSISNR, sisnr
-except ImportError:
-    from dcamf_net.model import DCAMFNet
-    from dcamf_net.dataset import AudioDenoisingDataset
-    from dcamf_net.loss import RnSISNR, sisnr
+from model import DCAMFNet
+from dataset import AudioDenoisingDataset
+from loss import RnSISNR, sisnr
 
 
 def set_seed(seed):
@@ -76,31 +71,24 @@ def profile_model(model, device, sample_rate=16000, duration=3.0):
 
 def save_plot(history, save_path):
     epochs = range(1, len(history["train_loss"]) + 1)
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    plt.figure(figsize=(12, 5))
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs, history["train_loss"], "b-", label="Train Loss")
+    plt.plot(epochs, history["val_loss"], "r-", label="Val Loss")
+    plt.title("r-nSISNR Loss")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.legend()
+    plt.grid(True)
 
-    # Loss
-    axes[0].plot(epochs, history["train_loss"], "b-", label="Train Loss")
-    axes[0].plot(epochs, history["val_loss"], "r-", label="Val Loss")
-    axes[0].set_title("r-nSISNR Loss")
-    axes[0].set_xlabel("Epochs"); axes[0].set_ylabel("Loss")
-    axes[0].legend(); axes[0].grid(True)
-
-    # Signal SISNR
-    ax1 = axes[1]
-    ax1.plot(epochs, history["train_sisnr"], "b-", label="Train SI-SNR(ŝ, s)")
-    ax1.plot(epochs, history["val_sisnr"], "r-", label="Val SI-SNR(ŝ, s)")
-    ax1.set_title("信号恢复 SISNR (dB)")
-    ax1.set_xlabel("Epochs"); ax1.set_ylabel("dB")
-    ax1.legend(); ax1.grid(True)
-
-    # Noise SISNR
-    ax2 = axes[2]
-    ax2.plot(epochs, history["train_noise_sisnr"], "b-", label="Train SI-SNR(n̂, n)")
-    ax2.plot(epochs, history["val_noise_sisnr"], "r-", label="Val SI-SNR(n̂, n)")
-    ax2.set_title("噪声估计 SISNR (dB)")
-    ax2.set_xlabel("Epochs"); ax2.set_ylabel("dB")
-    ax2.legend(); ax2.grid(True)
-
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs, history["train_sisnr"], "b-", label="Train SISNR")
+    plt.plot(epochs, history["val_sisnr"], "r-", label="Val SISNR")
+    plt.title("SISNR (dB)")
+    plt.xlabel("Epochs")
+    plt.ylabel("dB")
+    plt.legend()
+    plt.grid(True)
     plt.tight_layout()
     plt.savefig(save_path)
     plt.close()
@@ -116,7 +104,7 @@ def calculate_sdr(est, target, eps=1e-8):
 
 def train_one_epoch(model, dataloader, criterion, optimizer, max_grad_norm, device):
     model.train()
-    metrics = {"loss": 0.0, "sisnr": 0.0, "noise_sisnr": 0.0, "sdr": 0.0}
+    metrics = {"loss": 0.0, "sisnr": 0.0, "sdr": 0.0}
     n_batches = 0
     pbar = tqdm(dataloader, desc="Training", unit="batch", leave=False)
     for noisy, clean in pbar:
@@ -130,15 +118,11 @@ def train_one_epoch(model, dataloader, criterion, optimizer, max_grad_norm, devi
         optimizer.step()
 
         with torch.no_grad():
-            est_noise = noisy.squeeze(1) - est_s
-            true_noise = noisy.squeeze(1) - target_s
             cur_sisnr = sisnr(est_s, target_s).mean().item()
-            cur_noise_sisnr = sisnr(est_noise, true_noise).mean().item()
             cur_sdr = calculate_sdr(est_s, target_s).item()
 
         metrics["loss"] += loss.item()
         metrics["sisnr"] += cur_sisnr
-        metrics["noise_sisnr"] += cur_noise_sisnr
         metrics["sdr"] += cur_sdr
         n_batches += 1
         pbar.set_postfix({"loss": f"{loss.item():.2f}", "sisnr": f"{cur_sisnr:.1f}dB"})
@@ -148,7 +132,7 @@ def train_one_epoch(model, dataloader, criterion, optimizer, max_grad_norm, devi
 @torch.no_grad()
 def validate(model, dataloader, criterion, device):
     model.eval()
-    metrics = {"loss": 0.0, "sisnr": 0.0, "noise_sisnr": 0.0, "sdr": 0.0}
+    metrics = {"loss": 0.0, "sisnr": 0.0, "sdr": 0.0}
     n_batches = 0
     pbar = tqdm(dataloader, desc="Validation", unit="batch", leave=False)
     for noisy, clean in pbar:
@@ -156,12 +140,8 @@ def validate(model, dataloader, criterion, device):
         estimated_clean = model(noisy)
         est_s, target_s = estimated_clean.squeeze(1), clean.squeeze(1)
         loss = criterion(noisy.squeeze(1), target_s, est_s)
-
-        est_noise = noisy.squeeze(1) - est_s
-        true_noise = noisy.squeeze(1) - target_s
         metrics["loss"] += loss.item()
         metrics["sisnr"] += sisnr(est_s, target_s).mean().item()
-        metrics["noise_sisnr"] += sisnr(est_noise, true_noise).mean().item()
         metrics["sdr"] += calculate_sdr(est_s, target_s).item()
         n_batches += 1
         pbar.set_postfix({"val_loss": f"{loss.item():.2f}"})
@@ -233,16 +213,7 @@ def main(args):
         writer = SummaryWriter(log_dir=log_dir)
         logger.info(f"TensorBoard logging enabled. Logs will be saved to: {log_dir}")
 
-        # Log model structure via torchinfo (more reliable than add_graph)
-        try:
-            from torchinfo import summary
-            model_stats = summary(model, input_size=(1, 1, 48000), verbose=0)
-            logger.info(f"Model stats:\n{str(model_stats)}")
-        except Exception as e:
-            logger.warning(f"torchinfo summary failed: {e}")
-
-    history = {"train_loss": [], "val_loss": [], "train_sisnr": [], "val_sisnr": [],
-               "train_noise_sisnr": [], "val_noise_sisnr": []}
+    history = {"train_loss": [], "val_loss": [], "train_sisnr": [], "val_sisnr": []}
     best_val_loss = float("inf")
     best_val_sisnr = float("-inf")
 
@@ -259,8 +230,6 @@ def main(args):
         history["val_loss"].append(val_res["loss"])
         history["train_sisnr"].append(train_res["sisnr"])
         history["val_sisnr"].append(val_res["sisnr"])
-        history["train_noise_sisnr"].append(train_res["noise_sisnr"])
-        history["val_noise_sisnr"].append(val_res["noise_sisnr"])
         save_plot(history, os.path.join(args.save_dir, "learning_curves.png"))
 
         # ========== 记录多层掩码融合权重 ==========
@@ -275,10 +244,8 @@ def main(args):
 
         log_msg = (
             f"Epoch [{epoch + 1:03d}] | LR: {curr_lr:.2e} | "
-            f"Train [Loss: {train_res['loss']:.4f}, SI-SNR(s): {train_res['sisnr']:.2f}dB, "
-            f"SI-SNR(n): {train_res['noise_sisnr']:.2f}dB] | "
-            f"Val [Loss: {val_res['loss']:.4f}, SI-SNR(s): {val_res['sisnr']:.2f}dB, "
-            f"SI-SNR(n): {val_res['noise_sisnr']:.2f}dB]"
+            f"Train [Loss: {train_res['loss']:.4f}, SISNR: {train_res['sisnr']:.2f}dB] | "
+            f"Val [Loss: {val_res['loss']:.4f}, SISNR: {val_res['sisnr']:.2f}dB]"
         )
         logger.info(log_msg)
 
@@ -289,13 +256,8 @@ def main(args):
                 epoch,
             )
             writer.add_scalars(
-                "Metrics/SISNR_Signal",
+                "Metrics/SISNR",
                 {"train": train_res["sisnr"], "val": val_res["sisnr"]},
-                epoch,
-            )
-            writer.add_scalars(
-                "Metrics/SISNR_Noise",
-                {"train": train_res["noise_sisnr"], "val": val_res["noise_sisnr"]},
                 epoch,
             )
             writer.add_scalars(
@@ -335,13 +297,6 @@ def main(args):
     logger.info(
         f"Training complete. Best val loss: {best_val_loss:.4f}, Best val SISNR: {best_val_sisnr:.2f}dB"
     )
-
-    # 导出 history JSON 供后续出图使用
-    import json
-    history_path = os.path.join(args.save_dir, "history.json")
-    with open(history_path, 'w') as f:
-        json.dump(history, f)
-    logger.info(f"History saved to {history_path}")
 
     if writer is not None:
         writer.close()
