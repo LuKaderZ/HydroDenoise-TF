@@ -57,8 +57,8 @@ python scripts/prepare_data_low.py
 ### 出图
 
 ```bash
-# 八张论文图（全部输出到 figures/，PDF+PNG）
-python scripts/plot_fig4_1_shipsear_psd.py          # 图4.1 ShipsEar PSD 概览
+# 七张论文图（全部输出到 figures/，PDF+PNG）
+# 图4.1 是 draw.io 流程图，见 drawio/fig4_1_data_pipeline.drawio
 python scripts/plot_fig4_2_time_waveform.py          # 图4.2 时域波形对比
 python scripts/plot_fig4_3_overall_spectrum.py       # 图4.3 总体频谱对比
 python scripts/plot_fig4_4_spectrogram.py            # 图4.4 语谱图对比
@@ -78,11 +78,12 @@ python scripts/compute_all_metrics.py                # 输出到 experiments.txt
 
 ## 第三章网络结构图
 
-`drawio/` 目录下有三张 draw.io 源文件：
+`drawio/` 目录下有四张 draw.io 源文件：
 
 - `fig3_1_architecture.drawio` — DCAMF-Net 整体架构
 - `fig3_2_dcam_block.drawio` — DCAM 模块双分支结构
 - `fig3_3_cemhsa.drawio` — CE-MHSA 卷积增强自注意力
+- `fig4_1_data_pipeline.drawio` — 数据集构建与预处理流程
 
 用 draw.io 桌面版打开编辑，导出 PDF 插入 Word。编辑时自动生成的 `.bkp` 备份文件已 gitignored。
 
