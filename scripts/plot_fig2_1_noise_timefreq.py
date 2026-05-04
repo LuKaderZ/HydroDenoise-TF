@@ -1,5 +1,5 @@
 """第二章 2.1 — 不同噪声类型的时域/频域/时频图（3×3）
-风噪声 / 水流噪声 / 水库噪声，每行: 时域波形 | PSD | 语谱图
+风噪声 / 水流噪声 / 水库噪声，每行: 时域波形 | PSD | 时频图
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -54,19 +54,66 @@ for row, (label, folder, color) in enumerate(sources):
     ax.set_xlim(0, 4)
     ax.grid(True, alpha=0.3)
 
-    # — 语谱图 —
+    # — 时频图 —
     ax = axes[row][2]
     f_s, t_s, Sxx = spectrogram(sig, FS, nperseg=256, noverlap=200)
     s_mask = f_s <= 4000
     im = ax.pcolormesh(t_s, f_s[s_mask] / 1000, 10 * np.log10(Sxx[s_mask] + 1e-10),
                        shading='auto', cmap='plasma', rasterized=True)
     ax.set_xlabel('时间 (s)'); ax.set_ylabel('频率 (kHz)')
-    ax.set_title(f'{label} — 语谱图')
+    ax.set_title(f'{label} — 时频图')
     ax.set_ylim(0, 4)
     plt.colorbar(im, ax=ax)
 
 plt.tight_layout()
-fig.savefig(FIG_DIR / 'ch2_noise_analysis.pdf', dpi=300, bbox_inches='tight')
-fig.savefig(FIG_DIR / 'ch2_noise_analysis.png', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig2-1_noise_timefreq.pdf', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig2-1_noise_timefreq.png', dpi=300, bbox_inches='tight')
 plt.show()
-print(f'Saved to {FIG_DIR / "ch2_noise_analysis.pdf"}')
+
+# ---- 终端数据输出（用于正文分析） ----
+print('\n========== 图2-1 噪声信号特征分析 ==========')
+bands = [(0, 500), (500, 2000), (2000, 4000)]
+
+for label, folder, _ in sources:
+    files = sorted(folder.glob('*.wav'))
+    if not files:
+        continue
+
+    sig = load_wav(files[0])
+    L = min(len(sig), 3 * FS)
+    sig = sig[:L]
+    rms = np.sqrt(np.mean(sig ** 2))
+
+    f_full, pxx_full = welch(sig, FS, nperseg=2048)
+    f_mask = f_full <= 4000
+    f_khz = f_full[f_mask] / 1000
+    pxx_db = 10 * np.log10(pxx_full[f_mask] + 1e-10)
+
+    # 频段能量占比
+    pxx_lin = pxx_full[f_mask]  # 线性功率
+    total_power = np.sum(pxx_lin)
+    band_info = []
+    for lo, hi in bands:
+        bm = (f_full[f_mask] >= lo) & (f_full[f_mask] <= hi)
+        pct = np.sum(pxx_lin[bm]) / total_power * 100
+        mean_db = np.mean(pxx_db[bm])
+        band_info.append((lo, hi, pct, mean_db))
+
+    # 谱峰
+    peak_idx = np.argmax(pxx_db)
+    peak_freq = f_khz[peak_idx] * 1000
+    peak_db = pxx_db[peak_idx]
+
+    # 谱质心
+    centroid = np.sum(f_full[f_mask] * pxx_lin) / total_power
+
+    print(f'\n--- {label} ---')
+    print(f'  RMS 幅度: {rms:.4f}')
+    print(f'  谱质心: {centroid:.0f} Hz')
+    print(f'  峰值频率: {peak_freq:.0f} Hz ({peak_db:.1f} dB/Hz)')
+    for lo, hi, pct, mean_db in band_info:
+        print(f'  {lo:4d}–{hi:4d} Hz: 能量占比 {pct:5.1f}%  均值 {mean_db:.1f} dB/Hz')
+    print(f'  PSD 整体范围: {pxx_db.min():.1f} ~ {pxx_db.max():.1f} dB/Hz')
+
+print('\n============================================')
+print(f'Saved to {FIG_DIR / "fig2-1_noise_timefreq.pdf"}')
