@@ -67,11 +67,24 @@ python scripts/plot_fig4_6_generalization.py         # 图4.6 泛化性能
 python scripts/plot_fig4_7_fusion_weights.py         # 图4.7 融合权重分布
 python scripts/plot_fig4_8_noise_estimation.py       # 图4.8 噪声估计验证
 
+# 第二章插图
+python scripts/plot_ch2_noise_analysis.py            # 图2.1 六类水声信号PSD
+
 # 全量指标评估
 python scripts/compute_all_metrics.py                # 输出到 experiments.txt
 ```
 
 所有脚本依赖 Python（scipy, numpy, soundfile, matplotlib），无需 MATLAB。
+
+## 第三章网络结构图
+
+`drawio/` 目录下有三张 draw.io 源文件：
+
+- `fig3_1_architecture.drawio` — DCAMF-Net 整体架构
+- `fig3_2_dcam_block.drawio` — DCAM 模块双分支结构
+- `fig3_3_cemhsa.drawio` — CE-MHSA 卷积增强自注意力
+
+用 draw.io 桌面版打开编辑，导出 PDF 插入 Word。编辑时自动生成的 `.bkp` 备份文件已 gitignored。
 
 ## 架构
 
