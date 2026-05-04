@@ -68,7 +68,7 @@ python scripts/plot_fig4_7_fusion_weights.py         # 图4.7 融合权重分布
 python scripts/plot_fig4_8_noise_estimation.py       # 图4.8 噪声估计验证
 
 # 第二章插图
-python scripts/plot_ch2_noise_analysis.py            # 图2.1 六类水声信号PSD
+python scripts/plot_fig2_1_noise_timefreq.py         # 图2.1 不同噪声类型时域/频域/时频图
 
 # 全量指标评估
 python scripts/compute_all_metrics.py                # 输出到 experiments.txt
