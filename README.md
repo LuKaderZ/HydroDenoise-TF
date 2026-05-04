@@ -178,16 +178,19 @@ python test.py
 
 | 图号 | 脚本 / 来源 | 内容 |
 | ------ | ------------ | ------------------- |
-| 图 2.1 | `plot_fig2_1_noise_timefreq.py` | 不同噪声类型时域/频域/时频图 |
+| 图 2.1 | `plot_fig2_1_ship_psd.py` | 船舶辐射噪声功率谱密度 |
+| 图 2.2 | `plot_fig2_2_noise_timefreq.py` | 不同噪声类型时域/频域/时频图 |
+| 图 2.3 | `plot_fig2_3_noisy_psd.py` | -15dB混合信号PSD对比 |
 | 图 3.1–3.3 | `drawio/fig3_*_*.drawio` | 网络结构图（draw.io） |
 | 图 4.1 | `drawio/fig4_1_data_pipeline.drawio` | 数据集构建与预处理流程（draw.io） |
-| 图 4.2 | `plot_fig4_2_time_waveform.py` | 时域波形对比 |
-| 图 4.3 | `plot_fig4_3_overall_spectrum.py` | 总体频谱对比 |
-| 图 4.4 | `plot_fig4_4_spectrogram.py` | 语谱图对比 |
-| 图 4.5 | `plot_fig4_5_line_spectra.py` | 关键线谱功率恢复 |
-| 图 4.6 | `plot_fig4_6_generalization.py` | 泛化性能评估 |
-| 图 4.7 | `plot_fig4_7_fusion_weights.py` | 融合权重分布 |
-| 图 4.8 | `plot_fig4_8_noise_estimation.py` | 噪声估计验证 |
+| 图 4.2 | `plot_fig4_2_training_curves.py` | 训练损失与SI-SNR曲线 |
+| 图 4.3 | `plot_fig4_3_time_waveform.py` | 时域波形对比 |
+| 图 4.4 | `plot_fig4_4_overall_spectrum.py` | 总体频谱对比 |
+| 图 4.5 | `plot_fig4_5_spectrogram.py` | 语谱图对比 |
+| 图 4.6 | `plot_fig4_6_line_spectra.py` | 关键线谱功率恢复 |
+| 图 4.7 | `plot_fig4_7_generalization.py` | 泛化性能评估 |
+| 图 4.8 | `plot_fig4_8_fusion_weights.py` | 融合权重分布 |
+| 图 4.9 | `plot_fig4_9_noise_estimation.py` | 噪声估计验证 |
 
 脚本会自动读取实验产物并保存图像至 `figures/` 目录。
 

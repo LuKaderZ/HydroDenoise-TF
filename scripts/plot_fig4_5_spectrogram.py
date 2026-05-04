@@ -1,4 +1,4 @@
-"""图4-4：各模型降噪后时频谱图对比 (plasma配色)"""
+"""图4-5：各模型降噪后时频谱图对比 (plasma配色)"""
 import numpy as np
 import soundfile as sf
 import matplotlib.pyplot as plt
@@ -97,7 +97,7 @@ plt.subplots_adjust(hspace=0.55, wspace=0.25)
 
 save_dir = project_root / 'figures'
 save_dir.mkdir(exist_ok=True)
-fig.savefig(save_dir / 'fig4-4_Spectrogram_Comparison.pdf', dpi=300, bbox_inches='tight')
-fig.savefig(save_dir / 'fig4-4_Spectrogram_Comparison.png', dpi=300, bbox_inches='tight')
+fig.savefig(save_dir / 'fig4-5_Spectrogram_Comparison.pdf', dpi=300, bbox_inches='tight')
+fig.savefig(save_dir / 'fig4-5_Spectrogram_Comparison.png', dpi=300, bbox_inches='tight')
 plt.show()
-print(f'图4-4 已保存至 {save_dir}')
+print(f'图4-5 已保存至 {save_dir}')

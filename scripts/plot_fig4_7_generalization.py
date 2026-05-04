@@ -1,4 +1,4 @@
-"""图4-6: DCAMF-Net 泛化性能评估 (ShipsEar 三个测试集, SI-SNRi + SDRi)"""
+"""图4-7: DCAMF-Net 泛化性能评估 (ShipsEar 三个测试集, SI-SNRi + SDRi)"""
 import numpy as np
 import matplotlib.pyplot as plt
 from plot_utils import *
@@ -75,7 +75,7 @@ for ax, data, ylabel, title in [
         ax.axhline(0, color='black', linewidth=0.5, linestyle='-')
 
 plt.tight_layout()
-fig.savefig(FIG_DIR / 'fig4-6_DCAMF_Net_ShipsEar.pdf', dpi=300, bbox_inches='tight')
-fig.savefig(FIG_DIR / 'fig4-6_DCAMF_Net_ShipsEar.png', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-7_DCAMF_Net_ShipsEar.pdf', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-7_DCAMF_Net_ShipsEar.png', dpi=300, bbox_inches='tight')
 plt.show()
-print('图4-6 已保存')
+print('图4-7 已保存')

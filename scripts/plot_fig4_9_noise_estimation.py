@@ -1,4 +1,4 @@
-"""图4.8 噪声估计验证 — DCAMF-Net 估计噪声 vs 真实噪声 PSD"""
+"""图4.9 噪声估计验证 — DCAMF-Net 估计噪声 vs 真实噪声 PSD"""
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import welch
@@ -86,8 +86,8 @@ ax.text(0.98, 0.05,
         bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.6))
 
 plt.tight_layout()
-fig.savefig(FIG_DIR / 'fig4-8_noise_estimation.pdf', dpi=300, bbox_inches='tight')
-fig.savefig(FIG_DIR / 'fig4-8_noise_estimation.png', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-9_noise_estimation.pdf', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-9_noise_estimation.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # ---- 终端统计（用于正文引用） ----
@@ -96,4 +96,4 @@ print(f'PSD r 中位数:             {np.median(psd_r_vals):.4f}')
 print(f'PSD r Q1-Q3:              {np.percentile(psd_r_vals, 25):.4f} - {np.percentile(psd_r_vals, 75):.4f}')
 print(f'SI-SNR(nest,n) 中位数:    {np.median(sisnr_n_vals):.2f} dB')
 print(f'SI-SNR(nest,n) Q1-Q3:     {np.percentile(sisnr_n_vals, 25):.2f} - {np.percentile(sisnr_n_vals, 75):.2f} dB')
-print(f'\nSaved: {FIG_DIR / "fig4-8_noise_estimation.pdf"}')
+print(f'\nSaved: {FIG_DIR / "fig4-9_noise_estimation.pdf"}')

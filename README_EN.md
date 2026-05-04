@@ -176,16 +176,19 @@ Run the plotting scripts under `scripts/`. All figures are auto-saved to `figure
 
 | Figure | Script / Source | Content |
 |--------|-----------------|---------|
-| Fig 2.1 | `plot_fig2_1_noise_timefreq.py` | Noise type time/freq/time-freq analysis |
+| Fig 2.1 | `plot_fig2_1_ship_psd.py` | Ship radiated noise PSD |
+| Fig 2.2 | `plot_fig2_2_noise_timefreq.py` | Noise type time/freq/time-freq analysis |
+| Fig 2.3 | `plot_fig2_3_noisy_psd.py` | -15dB noisy mixture PSD comparison |
 | Fig 3.1–3.3 | `drawio/fig3_*_*.drawio` | Network architecture diagrams (draw.io) |
 | Fig 4.1 | `drawio/fig4_1_data_pipeline.drawio` | Dataset construction pipeline (draw.io) |
-| Fig 4.2 | `plot_fig4_2_time_waveform.py` | Time-domain waveform comparison |
-| Fig 4.3 | `plot_fig4_3_overall_spectrum.py` | Overall spectral comparison |
-| Fig 4.4 | `plot_fig4_4_spectrogram.py` | Spectrogram comparison |
-| Fig 4.5 | `plot_fig4_5_line_spectra.py` | Key line spectrum power recovery |
-| Fig 4.6 | `plot_fig4_6_generalization.py` | Generalization performance |
-| Fig 4.7 | `plot_fig4_7_fusion_weights.py` | Fusion weight distribution |
-| Fig 4.8 | `plot_fig4_8_noise_estimation.py` | Noise estimation verification |
+| Fig 4.2 | `plot_fig4_2_training_curves.py` | Training loss & SI-SNR curves |
+| Fig 4.3 | `plot_fig4_3_time_waveform.py` | Time-domain waveform comparison |
+| Fig 4.4 | `plot_fig4_4_overall_spectrum.py` | Overall spectral comparison |
+| Fig 4.5 | `plot_fig4_5_spectrogram.py` | Spectrogram comparison |
+| Fig 4.6 | `plot_fig4_6_line_spectra.py` | Key line spectrum power recovery |
+| Fig 4.7 | `plot_fig4_7_generalization.py` | Generalization performance |
+| Fig 4.8 | `plot_fig4_8_fusion_weights.py` | Fusion weight distribution |
+| Fig 4.9 | `plot_fig4_9_noise_estimation.py` | Noise estimation verification |
 
 For IEEE journal paper figures (English, color):
 
