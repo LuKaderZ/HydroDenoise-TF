@@ -68,7 +68,8 @@ python scripts/plot_fig4_7_fusion_weights.py         # 图4.7 融合权重分布
 python scripts/plot_fig4_8_noise_estimation.py       # 图4.8 噪声估计验证
 
 # 第二章插图
-python scripts/plot_fig2_1_noise_timefreq.py         # 图2.1 不同噪声类型时域/频域/时频图
+python scripts/plot_fig2_1_ship_psd.py               # 图2.1 船舶辐射噪声功率谱密度
+python scripts/plot_fig2_2_noise_timefreq.py          # 图2.2 不同噪声类型时域/频域/时频图
 
 # 全量指标评估
 python scripts/compute_all_metrics.py                # 输出到 experiments.txt

@@ -1,4 +1,4 @@
-"""第二章 2.1 — 不同噪声类型的时域/频域/时频图（3×3）
+"""图2-2: 不同噪声类型的时域/频域/时频图（3×3）
 风噪声 / 水流噪声 / 水库噪声，每行: 时域波形 | PSD | 时频图
 """
 import numpy as np
@@ -75,12 +75,12 @@ for row, (label, folder, color) in enumerate(sources):
     plt.colorbar(im, ax=ax)
 
 plt.tight_layout()
-fig.savefig(FIG_DIR / 'fig2-1_noise_timefreq.pdf', dpi=300, bbox_inches='tight')
-fig.savefig(FIG_DIR / 'fig2-1_noise_timefreq.png', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig2-2_noise_timefreq.pdf', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig2-2_noise_timefreq.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # ---- 终端数据输出（用于正文分析） ----
-print('\n========== 图2-1 噪声信号特征分析 ==========')
+print('\n========== 图2-2 噪声信号特征分析 ==========')
 bands = [(0, 500), (500, 2000), (2000, 4000)]
 
 for label, folder, _ in sources:
@@ -125,4 +125,4 @@ for label, folder, _ in sources:
     print(f'  PSD 整体范围: {pxx_db.min():.1f} ~ {pxx_db.max():.1f} dB/Hz')
 
 print('\n============================================')
-print(f'Saved to {FIG_DIR / "fig2-1_noise_timefreq.pdf"}')
+print(f'Saved to {FIG_DIR / "fig2-2_noise_timefreq.pdf"}')
