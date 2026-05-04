@@ -5,7 +5,7 @@
 [![CUDA](https://img.shields.io/badge/CUDA-12.1-76B900?logo=nvidia)](https://developer.nvidia.com/cuda-toolkit)
 [![License](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
 
-An end-to-end **time-domain underwater acoustic denoising neural network** that bridges deep learning with classical signal processing. DCAMF-Net achieves state-of-the-art signal fidelity (SDRi 12.84 dB) on the ShipsEar and DeepShip datasets, outperforming Conv-TasNet, DPRNN, and CRN baselines.
+An end-to-end **time-domain underwater acoustic denoising neural network** that bridges deep learning with classical signal processing. DCAMF-Net achieves state-of-the-art signal fidelity (SDRi 14.35 dB) on the ShipsEar and DeepShip datasets, outperforming Conv-TasNet, DPRNN, and CRN baselines.
 
 **Keywords**: underwater acoustic denoising, deep learning, time-domain speech enhancement, dual-branch self-attention, multi-layer mask fusion, overcomplete basis decomposition, wavelet shrinkage, Conv-TasNet, DPRNN, ShipsEar, DeepShip, PyTorch
 
@@ -50,7 +50,7 @@ cd HydroDenoise-TF
 
 ### Local Environment (Inference & Plotting)
 
-Requires MATLAB for figure generation. Install the same Python dependencies (CUDA-enabled PyTorch not required locally).
+Requires Python for figure generation. Install the same Python dependencies (CUDA-enabled PyTorch not required locally).
 
 ---
 
@@ -170,23 +170,27 @@ cd dcamf_net
 python test.py
 ```
 
-### MATLAB Figures
+### Python Figures
 
-Run the plotting scripts under `scripts/`. For thesis figures (Chinese):
+Run the plotting scripts under `scripts/`. All figures are auto-saved to `figures/`.
 
-| Script | Figure | Content |
-|--------|--------|---------|
-| `plot_fig4_1.m` | Fig. 4.1 | Signal & noise PSD overview |
-| `plot_fig4_2.m` | Fig. 4.2 | Time-domain waveform comparison |
-| `plot_fig4_3_overall_spectrum.m` | Fig. 4.3 | Overall spectral comparison |
-| `plot_fig4_4.m` | Fig. 4.4 | Key line spectrum power recovery |
-| `plot_fig4_5.m` | Fig. 4.5 | Generalization performance |
-| `plot_fig4_6.m` | Fig. 4.6 | Fusion weight distribution |
+| Figure | Script / Source | Content |
+|--------|-----------------|---------|
+| Fig 2.1 | `plot_fig2_1_noise_timefreq.py` | Noise type time/freq/time-freq analysis |
+| Fig 3.1–3.3 | `drawio/fig3_*_*.drawio` | Network architecture diagrams (draw.io) |
+| Fig 4.1 | `drawio/fig4_1_data_pipeline.drawio` | Dataset construction pipeline (draw.io) |
+| Fig 4.2 | `plot_fig4_2_time_waveform.py` | Time-domain waveform comparison |
+| Fig 4.3 | `plot_fig4_3_overall_spectrum.py` | Overall spectral comparison |
+| Fig 4.4 | `plot_fig4_4_spectrogram.py` | Spectrogram comparison |
+| Fig 4.5 | `plot_fig4_5_line_spectra.py` | Key line spectrum power recovery |
+| Fig 4.6 | `plot_fig4_6_generalization.py` | Generalization performance |
+| Fig 4.7 | `plot_fig4_7_fusion_weights.py` | Fusion weight distribution |
+| Fig 4.8 | `plot_fig4_8_noise_estimation.py` | Noise estimation verification |
 
 For IEEE journal paper figures (English, color):
 
-```matlab
-run('scripts/plot_ieee_figures.m');
+```bash
+python scripts/plot_ieee_figures.py
 ```
 
 Outputs are saved to `figures/` and `figures/ieee/` respectively.
@@ -211,11 +215,17 @@ HydroDenoise-TF/
 │   ├── CRN-causal/
 │   ├── conv_tasnet/
 │   └── dprnn/
-├── scripts/                    # Data preparation
+├── scripts/                    # Data preparation & figure generation
 │   ├── prepare_data.py
 │   ├── prepare_data_high.py
-│   └── prepare_data_low.py
-├── scripts/                     # Figure generation (MATLAB)
+│   ├── prepare_data_low.py
+│   ├── plot_utils.py
+│   └── plot_fig*_*.py
+├── drawio/                     # Architecture & pipeline diagrams
+│   ├── fig3_1_architecture.drawio
+│   ├── fig3_2_dcam_block.drawio
+│   ├── fig3_3_cemhsa.drawio
+│   └── fig4_1_data_pipeline.drawio
 ├── figures/                    # Generated figures
 │   └── ieee/                   #   IEEE journal figures
 ├── experiments/                # Checkpoints, logs, denoised audio

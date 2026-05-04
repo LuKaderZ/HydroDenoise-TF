@@ -5,7 +5,7 @@
 [![CUDA](https://img.shields.io/badge/CUDA-12.1-76B900?logo=nvidia)](https://developer.nvidia.com/cuda-toolkit)
 [![License](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
 
-一种将深度学习与经典信号处理原理对应的端到端**时域水声降噪网络**。DCAMF-Net 在 ShipsEar 和 DeepShip 水声数据集上取得了最优的信号保真度（SDRi 12.84 dB），优于 Conv-TasNet、DPRNN、CRN 等基线模型。
+一种将深度学习与经典信号处理原理对应的端到端**时域水声降噪网络**。DCAMF-Net 在 ShipsEar 和 DeepShip 水声数据集上取得了最优的信号保真度（SDRi 14.35 dB），优于 Conv-TasNet、DPRNN、CRN 等基线模型。
 
 **English version**: [README_EN.md](./README_EN.md)
 
@@ -176,16 +176,18 @@ python test.py
 
 在 Python 环境中依次运行 `scripts/` 下的绘图脚本：
 
-| 脚本                              | 生成图 | 内容                |
-| --------------------------------- | ------ | ------------------- |
-| `plot_fig4_1_shipsear_psd.py`     | 图 4.1 | 信号与噪声 PSD 概览 |
-| `plot_fig4_2_time_waveform.py`    | 图 4.2 | 时域波形对比        |
-| `plot_fig4_3_overall_spectrum.py` | 图 4.3 | 总体频谱对比        |
-| `plot_fig4_4_spectrogram.py`      | 图 4.4 | 语谱图对比          |
-| `plot_fig4_5_line_spectra.py`     | 图 4.5 | 关键线谱功率恢复    |
-| `plot_fig4_6_generalization.py`   | 图 4.6 | 泛化性能评估        |
-| `plot_fig4_7_fusion_weights.py`   | 图 4.7 | 融合权重分布        |
-| `plot_fig4_8_noise_estimation.py` | 图 4.8 | 噪声估计验证        |
+| 图号 | 脚本 / 来源 | 内容 |
+| ------ | ------------ | ------------------- |
+| 图 2.1 | `plot_fig2_1_noise_timefreq.py` | 不同噪声类型时域/频域/时频图 |
+| 图 3.1–3.3 | `drawio/fig3_*_*.drawio` | 网络结构图（draw.io） |
+| 图 4.1 | `drawio/fig4_1_data_pipeline.drawio` | 数据集构建与预处理流程（draw.io） |
+| 图 4.2 | `plot_fig4_2_time_waveform.py` | 时域波形对比 |
+| 图 4.3 | `plot_fig4_3_overall_spectrum.py` | 总体频谱对比 |
+| 图 4.4 | `plot_fig4_4_spectrogram.py` | 语谱图对比 |
+| 图 4.5 | `plot_fig4_5_line_spectra.py` | 关键线谱功率恢复 |
+| 图 4.6 | `plot_fig4_6_generalization.py` | 泛化性能评估 |
+| 图 4.7 | `plot_fig4_7_fusion_weights.py` | 融合权重分布 |
+| 图 4.8 | `plot_fig4_8_noise_estimation.py` | 噪声估计验证 |
 
 脚本会自动读取实验产物并保存图像至 `figures/` 目录。
 
@@ -213,7 +215,13 @@ HydroDenoise-TF/
 │   ├── prepare_data.py
 │   ├── prepare_data_high.py
 │   ├── prepare_data_low.py
-│   └── plot_fig4_*_*.py
+│   ├── plot_utils.py
+│   └── plot_fig*_*.py
+├── drawio/                     # 论文结构图源文件
+│   ├── fig3_1_architecture.drawio
+│   ├── fig3_2_dcam_block.drawio
+│   ├── fig3_3_cemhsa.drawio
+│   └── fig4_1_data_pipeline.drawio
 ├── figures/                    # 图表输出
 ├── experiments/                # 训练产物（检查点、日志、降噪音频）
 ├── raw_data/                   # 原始数据集
