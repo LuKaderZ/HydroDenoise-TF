@@ -14,7 +14,7 @@ plt.rcParams.update({'font.size': 7, 'axes.titlesize': 8, 'axes.labelsize': 7,
 RAW_ROOT = RAW_WIND.parent
 
 sources = [
-    ('风噪声', RAW_WIND, '#EDB120'),
+    ('风噪声', RAW_WIND, '#D95319'),
     ('水流噪声', RAW_ROOT / 'flow', '#4DB0B0'),
     ('水库噪声（未知噪声）', RAW_ROOT / 'reservoir', '#7E2F8E'),
 ]
