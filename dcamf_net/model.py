@@ -154,10 +154,10 @@ class ConvEnhancedMHSA(nn.Module):
         self.pw_conv2 = nn.Conv1d(d_model, d_model, kernel_size=1, bias=True)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x, attn_mask=None):
+    def forward(self, x, attn_mask=None, return_attention=False):
         B, L, D = x.shape
 
-        attn_out, _ = self.mhsa(x, x, x, attn_mask=attn_mask)
+        attn_out, attn_weights = self.mhsa(x, x, x, attn_mask=attn_mask)
         attn_out = self.dropout(attn_out)
         x_res = self.ln_mhsa(attn_out + x)
 
@@ -173,6 +173,8 @@ class ConvEnhancedMHSA(nn.Module):
         h = self.dropout(h)
 
         W_conv = h.transpose(1, 2)
+        if return_attention:
+            return W_conv, attn_weights
         return W_conv
 
 
@@ -231,18 +233,24 @@ class DCAMBlock(nn.Module):
             nn.Sigmoid(),
         )
 
-    def forward(self, W):
+    def forward(self, W, return_attention=False):
         B, F, K, S = W.shape
 
         # Global branch
         W_global_in = W.permute(0, 2, 3, 1).contiguous().view(B * K, S, F)
-        W_global = self.global_cemhsa(W_global_in)
+        if return_attention:
+            W_global, attn_global = self.global_cemhsa(W_global_in, return_attention=True)
+        else:
+            W_global = self.global_cemhsa(W_global_in)
         W_global = self.global_ffn(W_global)
         W_global = W_global.view(B, K, S, F).permute(0, 3, 1, 2)  # (B, F, K, S)
 
         # Local branch
         W_local_in = W.permute(0, 3, 2, 1).contiguous().view(B * S, K, F)
-        W_local = self.local_cemhsa(W_local_in)
+        if return_attention:
+            W_local, attn_local = self.local_cemhsa(W_local_in, return_attention=True)
+        else:
+            W_local = self.local_cemhsa(W_local_in)
         W_local = self.local_ffn(W_local)
         W_local = W_local.view(B, S, K, F).permute(0, 3, 2, 1)  # (B, F, K, S)
 
@@ -261,6 +269,8 @@ class DCAMBlock(nn.Module):
         # Reshape back to (B, F, K, S)
         mask = mask_flat.view(B, F, K, S)
 
+        if return_attention:
+            return W_out, mask, {'global': attn_global, 'local': attn_local}
         return W_out, mask
 
 
