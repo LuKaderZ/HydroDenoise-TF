@@ -47,8 +47,17 @@ for row, (label, folder, color) in enumerate(sources):
     ax = axes[row][1]
     f, pxx = welch(sig, FS, nperseg=2048)
     mask = (f >= 0) & (f <= 4000)
-    ax.plot(f[mask] / 1000, 10 * np.log10(pxx[mask] + 1e-10),
-            color=color, lw=0.5)
+    f_plot = f[mask] / 1000
+    pxx_db = 10 * np.log10(pxx[mask] + 1e-10)
+    ax.plot(f_plot, pxx_db, color=color, lw=0.5)
+
+    # 谱质心标记（虚线竖线，标注置于顶部偏右下）
+    centroid = np.sum(f[mask] * pxx[mask]) / (np.sum(pxx[mask]) + 1e-10)
+    ax.axvline(centroid / 1000, color=color, linestyle='--', lw=0.8, alpha=0.6)
+    ax.text(centroid / 1000 + 0.08, pxx_db.max() - 5,
+            f'{centroid:.0f} Hz', color=color, fontsize=6, alpha=0.8,
+            bbox=dict(boxstyle='round,pad=0.1', facecolor='white', alpha=0.7, lw=0))
+
     ax.set_xlabel('频率 (kHz)'); ax.set_ylabel('PSD (dB/Hz)')
     ax.set_title(f'{label} — 功率谱密度')
     ax.set_xlim(0, 4)
