@@ -1,4 +1,4 @@
-"""图4-8: 多层掩码融合权重分布"""
+"""图4-9: 多层掩码融合权重分布"""
 import matplotlib.pyplot as plt
 from plot_utils import *
 
@@ -40,7 +40,7 @@ all_w = np.concatenate([extract_fusion_weights(FUSION_LOG_DIR / f)
 ax.set_xlim(0, all_w.max() * 1.15)
 
 plt.tight_layout()
-fig.savefig(FIG_DIR / 'fig4-8_fusion_weights_comparison.pdf', dpi=300, bbox_inches='tight')
-fig.savefig(FIG_DIR / 'fig4-8_fusion_weights_comparison.png', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-9_fusion_weights_comparison.pdf', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-9_fusion_weights_comparison.png', dpi=300, bbox_inches='tight')
 plt.show()
-print('图4-8 已保存')
+print('图4-9 已保存')

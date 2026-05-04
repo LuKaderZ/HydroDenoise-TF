@@ -1,4 +1,4 @@
-"""图4-3: 各模型降噪前后时域波形对比 (50ms瞬态窗)"""
+"""图4-4: 各模型降噪前后时域波形对比 (50ms瞬态窗)"""
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter1d
@@ -68,7 +68,7 @@ for ax, (label, sig) in zip(axes.flat, signals.items()):
     ax.grid(True)
 
 plt.tight_layout()
-fig.savefig(FIG_DIR / 'fig4-3_time_waveform_comparison.pdf', dpi=300, bbox_inches='tight')
-fig.savefig(FIG_DIR / 'fig4-3_time_waveform_comparison.png', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-4_time_waveform_comparison.pdf', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-4_time_waveform_comparison.png', dpi=300, bbox_inches='tight')
 plt.show()
-print('图4-3 已保存')
+print('图4-4 已保存')

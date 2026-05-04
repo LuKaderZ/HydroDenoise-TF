@@ -57,16 +57,17 @@ python scripts/prepare_data_low.py
 ### 出图
 
 ```bash
-# 九张论文图（全部输出到 figures/，PDF+PNG）
+# 十张论文图（全部输出到 figures/，PDF+PNG）
 # 图4.1 是 draw.io 流程图，见 drawio/fig4_1_data_pipeline.drawio
 python scripts/plot_fig4_2_training_curves.py         # 图4.2 训练损失与SI-SNR曲线
-python scripts/plot_fig4_3_time_waveform.py            # 图4.3 时域波形对比
-python scripts/plot_fig4_4_overall_spectrum.py         # 图4.4 总体频谱对比
-python scripts/plot_fig4_5_spectrogram.py              # 图4.5 语谱图对比
-python scripts/plot_fig4_6_line_spectra.py             # 图4.6 线谱功率恢复
-python scripts/plot_fig4_7_generalization.py           # 图4.7 泛化性能
-python scripts/plot_fig4_8_fusion_weights.py           # 图4.8 融合权重分布
-python scripts/plot_fig4_9_noise_estimation.py         # 图4.9 噪声估计验证
+python scripts/plot_fig4_3_sisnr_boxplot.py            # 图4.3 SI-SNRi/SDRi箱线图
+python scripts/plot_fig4_4_time_waveform.py            # 图4.4 时域波形对比
+python scripts/plot_fig4_5_overall_spectrum.py         # 图4.5 总体频谱对比
+python scripts/plot_fig4_6_spectrogram.py              # 图4.6 语谱图对比
+python scripts/plot_fig4_7_line_spectra.py             # 图4.7 线谱功率恢复
+python scripts/plot_fig4_8_generalization.py           # 图4.8 泛化性能
+python scripts/plot_fig4_9_fusion_weights.py           # 图4.9 融合权重分布
+python scripts/plot_fig4_10_noise_estimation.py        # 图4.10 噪声估计验证
 
 # 第二章插图
 python scripts/plot_fig2_1_ship_psd.py               # 图2.1 船舶辐射噪声功率谱密度

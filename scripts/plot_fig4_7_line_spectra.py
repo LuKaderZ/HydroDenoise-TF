@@ -1,4 +1,4 @@
-"""图4-6: 各模型关键线谱功率恢复偏差条形图"""
+"""图4-7: 各模型关键线谱功率恢复偏差条形图"""
 import numpy as np
 import matplotlib.pyplot as plt
 from plot_utils import *
@@ -68,12 +68,12 @@ y_lo = min(dev_vals.min() * 1.15, -2) if dev_vals.min() < 0 else -2
 ax.set_ylim(y_lo, y_hi)
 
 plt.tight_layout()
-fig.savefig(FIG_DIR / 'fig4-6_Line_Spectra_Bar.pdf', dpi=300, bbox_inches='tight')
-fig.savefig(FIG_DIR / 'fig4-6_Line_Spectra_Bar.png', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-7_Line_Spectra_Bar.pdf', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-7_Line_Spectra_Bar.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # ---- 数据输出（用于论文写作） ----
-print('\n========== 图4-6 数据 ==========')
+print('\n========== 图4-7 数据 ==========')
 print(f'样本编号: {best_idx}')
 print(f'线谱频率: {freq_labels}')
 print()
@@ -89,4 +89,4 @@ for i, fq_label in enumerate(freq_labels):
     advantage = other_best - dev[i, 3]
     print(f'  {fq_label:>10s}: {advantage:+.2f} dB  (基线最优={other_best:+.2f}, DCAMF={dev[i,3]:+.2f})')
 print('================================\n')
-print('图4-6 已保存')
+print('图4-7 已保存')

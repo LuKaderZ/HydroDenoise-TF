@@ -182,13 +182,14 @@ Run the plotting scripts under `scripts/`. All figures are auto-saved to `figure
 | Fig 3.1–3.3 | `drawio/fig3_*_*.drawio` | Network architecture diagrams (draw.io) |
 | Fig 4.1 | `drawio/fig4_1_data_pipeline.drawio` | Dataset construction pipeline (draw.io) |
 | Fig 4.2 | `plot_fig4_2_training_curves.py` | Training loss & SI-SNR curves |
-| Fig 4.3 | `plot_fig4_3_time_waveform.py` | Time-domain waveform comparison |
-| Fig 4.4 | `plot_fig4_4_overall_spectrum.py` | Overall spectral comparison |
-| Fig 4.5 | `plot_fig4_5_spectrogram.py` | Spectrogram comparison |
-| Fig 4.6 | `plot_fig4_6_line_spectra.py` | Key line spectrum power recovery |
-| Fig 4.7 | `plot_fig4_7_generalization.py` | Generalization performance |
-| Fig 4.8 | `plot_fig4_8_fusion_weights.py` | Fusion weight distribution |
-| Fig 4.9 | `plot_fig4_9_noise_estimation.py` | Noise estimation verification |
+| Fig 4.3 | `plot_fig4_3_sisnr_boxplot.py` | Per-sample SI-SNRi & SDRi box plot |
+| Fig 4.4 | `plot_fig4_4_time_waveform.py` | Time-domain waveform comparison |
+| Fig 4.5 | `plot_fig4_5_overall_spectrum.py` | Overall spectral comparison |
+| Fig 4.6 | `plot_fig4_6_spectrogram.py` | Spectrogram comparison |
+| Fig 4.7 | `plot_fig4_7_line_spectra.py` | Key line spectrum power recovery |
+| Fig 4.8 | `plot_fig4_8_generalization.py` | Generalization performance |
+| Fig 4.9 | `plot_fig4_9_fusion_weights.py` | Fusion weight distribution |
+| Fig 4.10 | `plot_fig4_10_noise_estimation.py` | Noise estimation verification |
 
 For IEEE journal paper figures (English, color):
 

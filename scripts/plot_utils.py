@@ -79,7 +79,7 @@ def load_est(est_dir, idx, est_type):
     elif est_type == 2:
         f = Path(est_dir) / f'{idx-1:06d}_sph_est.wav'
     elif est_type == 3:
-        f = Path(est_dir) / f'{idx:06d}.wav'
+        f = Path(est_dir) / f'{idx-1:06d}.wav'
     else:
         raise ValueError(f'Unknown est_type: {est_type}')
     if not f.exists():
@@ -216,7 +216,7 @@ def select_best_transient():
     win_len = int(0.05 * FS)
 
     for k, f in enumerate(clean_files):
-        dcamf_file = DC_DIR / f'{k+1:06d}.wav'
+        dcamf_file = DC_DIR / f'{k:06d}.wav'
         if not dcamf_file.exists(): continue
         clean = load_wav(DATA_T1_CLEAN / f.name)
         noisy = load_wav(DATA_T1_NOISY / f.name)

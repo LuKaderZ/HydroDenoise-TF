@@ -1,4 +1,4 @@
-"""图4-5：各模型降噪后时频谱图对比 (plasma配色)"""
+"""图4-6：各模型降噪后时频谱图对比 (plasma配色)"""
 import numpy as np
 import soundfile as sf
 import matplotlib.pyplot as plt
@@ -21,7 +21,7 @@ fs = 16000
 nperseg, noverlap, nfft = 256, 200, 512
 freq_lim = 4000
 
-# ------- 选取与图4-2一致的样本 (瞬态最强段 DCAMF-Net SI-SNRi 最高) -------
+# ------- 选取与图4-4一致的样本 (瞬态最强段 DCAMF-Net SI-SNRi 最高) -------
 def compute_sisnr(est, ref):
     est = est - est.mean(); ref = ref - ref.mean()
     dot = np.dot(est, ref)
@@ -34,7 +34,7 @@ best_sii, best_idx = -np.inf, 0
 win_len = int(0.05 * fs)
 
 for k, f in enumerate(clean_files):
-    dcamf_file = dc_dir / f'{k+1:06d}.wav'
+    dcamf_file = dc_dir / f'{k:06d}.wav'
     if not dcamf_file.exists(): continue
     clean, _ = sf.read(clean_dir / f.name); clean = clean.mean(axis=1) if clean.ndim > 1 else clean
     noisy, _ = sf.read(noisy_dir / f.name); noisy = noisy.mean(axis=1) if noisy.ndim > 1 else noisy
@@ -54,7 +54,7 @@ print(f'选定样本: {best_idx}')
 def load_est(est_dir, idx, est_type):
     if est_type == 1: f = est_dir / f'{idx}_sph_est.wav'
     elif est_type == 2: f = est_dir / f'{idx:06d}_sph_est.wav'
-    else: f = est_dir / f'{idx+1:06d}.wav'
+    else: f = est_dir / f'{idx:06d}.wav'
     s, _ = sf.read(f); return s.mean(axis=1) if s.ndim > 1 else s
 
 fname = clean_files[best_idx].name
@@ -97,7 +97,7 @@ plt.subplots_adjust(hspace=0.55, wspace=0.25)
 
 save_dir = project_root / 'figures'
 save_dir.mkdir(exist_ok=True)
-fig.savefig(save_dir / 'fig4-5_Spectrogram_Comparison.pdf', dpi=300, bbox_inches='tight')
-fig.savefig(save_dir / 'fig4-5_Spectrogram_Comparison.png', dpi=300, bbox_inches='tight')
+fig.savefig(save_dir / 'fig4-6_Spectrogram_Comparison.pdf', dpi=300, bbox_inches='tight')
+fig.savefig(save_dir / 'fig4-6_Spectrogram_Comparison.png', dpi=300, bbox_inches='tight')
 plt.show()
-print(f'图4-5 已保存至 {save_dir}')
+print(f'图4-6 已保存至 {save_dir}')

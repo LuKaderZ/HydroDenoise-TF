@@ -66,7 +66,7 @@ def plot_curves(data, save_path):
     is_new = data['format'] == 'new'
     n_panels = 3 if is_new else 2
 
-    fig, axes = plt.subplots(1, n_panels, figsize=(5.5 * n_panels, 4))
+    fig, axes = plt.subplots(1, n_panels, figsize=(6.5, 3.2))
     if n_panels == 2:
         axes = [axes[0], axes[1], None]
 
@@ -74,28 +74,28 @@ def plot_curves(data, save_path):
 
     # (a) Loss
     ax = axes[0]
-    ax.plot(epochs, data['train_loss'], color=c_train, lw=1.2, label='训练')
-    ax.plot(epochs, data['val_loss'], color=c_val, lw=1.2, label='验证')
+    ax.plot(epochs, data['train_loss'], color=c_train, lw=1.0, label='训练')
+    ax.plot(epochs, data['val_loss'], color=c_val, lw=1.0, label='验证')
     ax.set_xlabel('Epoch'); ax.set_ylabel('r-nSISNR Loss')
-    ax.legend(loc='upper right'); ax.grid(True, alpha=0.3)
-    ax.set_title('(a) 训练损失', fontsize=9, fontweight='bold')
+    ax.legend(loc='upper right', fontsize=7); ax.grid(True, alpha=0.25, lw=0.4)
+    ax.set_title('(a) 训练损失', fontsize=10, fontweight='bold')
 
     # (b) SI-SNR(s)
     ax = axes[1]
-    ax.plot(epochs, data['train_sisnr'], color=c_train, lw=1.2, label='训练 SI-SNR')
-    ax.plot(epochs, data['val_sisnr'], color=c_val, lw=1.2, label='验证 SI-SNR')
+    ax.plot(epochs, data['train_sisnr'], color=c_train, lw=1.0, label='训练 SI-SNR')
+    ax.plot(epochs, data['val_sisnr'], color=c_val, lw=1.0, label='验证 SI-SNR')
     ax.set_xlabel('Epoch'); ax.set_ylabel('SI-SNR (dB)')
-    ax.legend(loc='lower right'); ax.grid(True, alpha=0.3)
-    ax.set_title('(b) 信号恢复 SI-SNR', fontsize=9, fontweight='bold')
+    ax.legend(loc='lower right', fontsize=7); ax.grid(True, alpha=0.25, lw=0.4)
+    ax.set_title('(b) 信号恢复 SI-SNR', fontsize=10, fontweight='bold')
 
     # (c) SI-SNR(n) — 仅新格式
     if is_new and axes[2] is not None:
         ax = axes[2]
-        ax.plot(epochs, data['train_noise_sisnr'], color=c_train, lw=1.2, label='训练 SI-SNR(n̂,n)')
-        ax.plot(epochs, data['val_noise_sisnr'], color=c_val, lw=1.2, label='验证 SI-SNR(n̂,n)')
+        ax.plot(epochs, data['train_noise_sisnr'], color=c_train, lw=1.0, label='训练 SI-SNR(n̂,n)')
+        ax.plot(epochs, data['val_noise_sisnr'], color=c_val, lw=1.0, label='验证 SI-SNR(n̂,n)')
         ax.set_xlabel('Epoch'); ax.set_ylabel('SI-SNR (dB)')
-        ax.legend(loc='lower right'); ax.grid(True, alpha=0.3)
-        ax.set_title('(c) 噪声估计 SI-SNR', fontsize=9, fontweight='bold')
+        ax.legend(loc='lower right', fontsize=7); ax.grid(True, alpha=0.25, lw=0.4)
+        ax.set_title('(c) 噪声估计 SI-SNR', fontsize=10, fontweight='bold')
 
     plt.tight_layout()
     fig.savefig(str(save_path) + '.pdf', dpi=300, bbox_inches='tight')

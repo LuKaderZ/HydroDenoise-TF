@@ -1,4 +1,4 @@
-"""图4-4: 各模型降噪后总体频谱对比 (2x2, 统一纵轴)"""
+"""图4-5: 各模型降噪后总体频谱对比 (2x2, 统一纵轴)"""
 import numpy as np
 import matplotlib.pyplot as plt
 from plot_utils import *
@@ -64,12 +64,12 @@ for ax, (name, pxx, color) in zip(axes.flat, models):
     ax.legend(['带噪信号', '干净信号', '降噪后'], fontsize=8); ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
-fig.savefig(FIG_DIR / 'fig4-4_overall_spectrum_comparison.pdf', dpi=300, bbox_inches='tight')
-fig.savefig(FIG_DIR / 'fig4-4_overall_spectrum_comparison.png', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-5_overall_spectrum_comparison.pdf', dpi=300, bbox_inches='tight')
+fig.savefig(FIG_DIR / 'fig4-5_overall_spectrum_comparison.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # ---- 终端数据输出 ----
-print('\n========== 图4-4 数据 ==========')
+print('\n========== 图4-5 数据 ==========')
 print(f'样本编号: {best_idx}')
 print(f'线谱参考线: {[f"{int(round(fq))} Hz" for fq in line_freqs]}')
 print()
@@ -96,4 +96,4 @@ for lo, hi in bands:
     print()
 
 print('================================\n')
-print('图4-4 已保存')
+print('图4-5 已保存')

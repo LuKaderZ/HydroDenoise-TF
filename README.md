@@ -184,13 +184,14 @@ python test.py
 | 图 3.1–3.3 | `drawio/fig3_*_*.drawio` | 网络结构图（draw.io） |
 | 图 4.1 | `drawio/fig4_1_data_pipeline.drawio` | 数据集构建与预处理流程（draw.io） |
 | 图 4.2 | `plot_fig4_2_training_curves.py` | 训练损失与SI-SNR曲线 |
-| 图 4.3 | `plot_fig4_3_time_waveform.py` | 时域波形对比 |
-| 图 4.4 | `plot_fig4_4_overall_spectrum.py` | 总体频谱对比 |
-| 图 4.5 | `plot_fig4_5_spectrogram.py` | 语谱图对比 |
-| 图 4.6 | `plot_fig4_6_line_spectra.py` | 关键线谱功率恢复 |
-| 图 4.7 | `plot_fig4_7_generalization.py` | 泛化性能评估 |
-| 图 4.8 | `plot_fig4_8_fusion_weights.py` | 融合权重分布 |
-| 图 4.9 | `plot_fig4_9_noise_estimation.py` | 噪声估计验证 |
+| 图 4.3 | `plot_fig4_3_sisnr_boxplot.py` | SI-SNRi/SDRi分布箱线图 |
+| 图 4.4 | `plot_fig4_4_time_waveform.py` | 时域波形对比 |
+| 图 4.5 | `plot_fig4_5_overall_spectrum.py` | 总体频谱对比 |
+| 图 4.6 | `plot_fig4_6_spectrogram.py` | 语谱图对比 |
+| 图 4.7 | `plot_fig4_7_line_spectra.py` | 关键线谱功率恢复 |
+| 图 4.8 | `plot_fig4_8_generalization.py` | 泛化性能评估 |
+| 图 4.9 | `plot_fig4_9_fusion_weights.py` | 融合权重分布 |
+| 图 4.10 | `plot_fig4_10_noise_estimation.py` | 噪声估计验证 |
 
 脚本会自动读取实验产物并保存图像至 `figures/` 目录。
 
