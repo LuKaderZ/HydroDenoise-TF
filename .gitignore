@@ -224,3 +224,4 @@ exp/
 # draw.io auto-backup files
 .$*.bkp
 $*.bkp
+tmp/

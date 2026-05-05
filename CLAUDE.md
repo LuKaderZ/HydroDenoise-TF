@@ -73,6 +73,14 @@ python scripts/plot_fig4_10_noise_estimation.py        # 图4.10 噪声估计验
 python scripts/plot_fig2_1_ship_psd.py               # 图2.1 船舶辐射噪声功率谱密度
 python scripts/plot_fig2_2_noise_timefreq.py          # 图2.2 不同噪声类型时域/频域/时频图
 
+# 第五章可解释性分析（依赖 plot_chapter5_utils.py 公共工具，需 best_SISNR.pth）
+python scripts/plot_fig5_1_encoder_analysis.py        # 图5.1 卷积编码器分析（设计意图 vs 实际响应）
+python scripts/plot_fig5_2_tone_vs_white.py           # 图5.2 纯音与白噪声掩码响应对比
+python scripts/plot_fig5_3_mix_separation.py          # 图5.3 混合信号频率选择性分离
+python scripts/plot_fig5_4_attention_matrices.py      # 图5.4 DCAM注意力矩阵（纯音/白噪/脉冲 × 局部/全局）
+python scripts/plot_fig5_5_multilayer_masks.py        # 图5.5 多层掩码融合多分辨率收缩特性
+python scripts/plot_fig5_6_decoder_reconstruction.py  # 图5.6 合成滤波器组与重构分析
+
 # 全量指标评估
 python scripts/compute_all_metrics.py                # 输出到 experiments.txt
 ```
@@ -106,18 +114,20 @@ python scripts/compute_all_metrics.py                # 输出到 experiments.txt
 
 **Encoder-Masker-Decoder** 架构，核心创新为估计噪声（而非直接估计信号）：
 
-1. **Encoder** (`ConvEncoder`): Conv1d(1→256, K=80, S=40) → PReLU → LayerNorm → 分块 segment(chunk_size=500, hop=250)
+1. **Encoder** (`ConvEncoder`): Conv1d(1→256, K=80, S=40) → PReLU → LayerNorm → 分块 segment(chunk_size=500, hop=250)。支持 `return_kernel=True` 返回每层卷积权重供可视化
 2. **DCAM Blocks** (×10): 每个 block 含两条分支 —
    - **Global branch**: 沿帧维度做 ConvEnhancedMHSA + GRU-FFN，捕获帧间上下文
    - **Local branch**: 沿局部段维度做 ConvEnhancedMHSA + GRU-FFN，捕获段内细节
    - 输出 = 恒等残差 + 0.5×local + 0.5×global
    - 每 block 生成一个 mask（gated tanh·sigmoid 机制）
+   - Block 级 `return_attention=True` 返回各层 global/local 注意力权重矩阵
 3. **Multi-Layer Mask Fusion**: 10 个 mask 通过可学习 softmax 权重加权融合
 4. **Decoder** (`ConvDecoder`): ConvTranspose1d(256→1, K=80, S=40)
 
 ### 其余关键模块
 
-- **ConvEnhancedMHSA**: MultiheadAttention + 逐点Conv→GLU→深度Conv→BN→Swish→逐点Conv→Dropout 的卷积增强支路
+- **ConvEnhancedMHSA**: MultiheadAttention + 逐点Conv→GLU→深度Conv→BN→Swish→逐点Conv→Dropout 的卷积增强支路。`return_attention=True` 返回注意力权重矩阵
+- **DCAMFNet**: 顶层 `forward(x, return_attention=False)` — 设为 True 返回 `(n_est, masks, attn_dict)`，其中 `attn_dict` 含每层 global/local 注意力权重，供第五章可解释性分析
 - **ImprovedFFN**: GRU + LeakyReLU + Linear + Dropout（替代传统 MLP FFN）
 - **Loss** (`loss.py`): r-nSISNR = `SISNR(n_est, n_true) + SISNR(s_est, s_true)`，取负值做最小化
 - **消融变体**: Ablation1(去全局分支) / Ablation2(去局部分支) / Ablation3(纯MHSA无卷积增强) 在 `model_ablation*.py`
@@ -132,6 +142,7 @@ python scripts/compute_all_metrics.py                # 输出到 experiments.txt
 | 数据加载         | `dcamf_net/dataset.py`                             |
 | 损失函数         | `dcamf_net/loss.py`                                |
 | 出图公共工具     | `scripts/plot_utils.py`                            |
+| 第五章分析工具   | `scripts/plot_chapter5_utils.py`                   |
 | 线谱检测算法     | `scripts/plot_utils.py` → `find_line_spectra()`    |
 | 掩码融合权重日志 | `experiments/mask_fusion_weights/`                 |
 | 模型最佳权重     | `experiments/dcamf_net/checkpoints/best_SISNR.pth` |
